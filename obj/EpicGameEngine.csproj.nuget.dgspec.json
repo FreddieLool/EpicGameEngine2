@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj": {}
+    "C:\\Users\\liamn\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj": {}
   },
   "projects": {
-    "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj": {
+    "C:\\Users\\liamn\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj",
+        "projectUniqueName": "C:\\Users\\liamn\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj",
         "projectName": "EpicGameEngine",
-        "projectPath": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj",
+        "projectPath": "C:\\Users\\liamn\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj",
         "packagesPath": "C:\\Users\\liamn\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\obj\\",
+        "outputPath": "C:\\Users\\liamn\\source\\repos\\EpicGameEngine2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\liamn\\AppData\\Roaming\\NuGet\\NuGet.Config",

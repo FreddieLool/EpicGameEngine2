@@ -8,4 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = EpicGameEngine
-build_property.ProjectDir = C:\Users\angry\source\repos\EpicGameEngine2\
+build_property.ProjectDir = C:\Users\liamn\source\repos\EpicGameEngine2\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

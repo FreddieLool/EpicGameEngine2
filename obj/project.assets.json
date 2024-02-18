@@ -8,19 +8,19 @@
     "net6.0": []
   },
   "packageFolders": {
-    "C:\\Users\\angry\\.nuget\\packages\\": {}
+    "C:\\Users\\liamn\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\EpicGameEngine.csproj",
+      "projectUniqueName": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj",
       "projectName": "EpicGameEngine",
-      "projectPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\EpicGameEngine.csproj",
-      "packagesPath": "C:\\Users\\angry\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\obj\\",
+      "projectPath": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\EpicGameEngine.csproj",
+      "packagesPath": "C:\\Users\\liamn\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\liamn\\Source\\Repos\\EpicGameEngine2\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\angry\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\liamn\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -61,7 +61,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
       }
     }
   }

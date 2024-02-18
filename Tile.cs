@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace EpicGameEngine
 {
-    internal class Tile
-    {
+    public class Tile
+    {   
+        public Vector2 Position { get; set; }
+
+        public Tile(Vector2 position)
+        {
+            this.Position = position;
+        }
     }
 }

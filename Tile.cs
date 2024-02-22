@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace EpicGameEngine
 {
-<<<<<<< Updated upstream
-    internal class Tile
-    {
-=======
+
+
     public class Tile
-    {   
+    {
         public Vector2 Position { get; set; }
         bool isWalkable;
         public Tile(Vector2 position)
@@ -22,6 +20,6 @@ namespace EpicGameEngine
 
 
 
->>>>>>> Stashed changes
+
     }
 }

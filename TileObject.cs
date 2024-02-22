@@ -8,11 +8,11 @@ namespace EpicGameEngine
 {
     public abstract class TileObject
     {
-        public Tile Tile { get; set; }
+        public Tile Tile { get; private set; }
 
         public TileObject(Tile tile)
         {
-            this.tile = tile;
+            this.Tile = tile;
         }
 
         public abstract void OnCollision(TileObject otherTileObj)

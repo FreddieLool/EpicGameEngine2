@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EpicGameEngine
 {
-    public abstract class Tilemap
+    public abstract class Tilemap : IEnumerable<Tile>
     {
         public abstract int Height { get; set; }
         public abstract int Width { get; set; }
@@ -30,6 +30,23 @@ namespace EpicGameEngine
                 }
             }
         }
+        public IEnumerator<Tile> GetEnumerator()
+        {
+            // Implement your custom logic for traversing the Tilemap
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    yield return board[x, y];
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         public virtual void SetTile(Vector2 position, Tile tile)
         {
             board[position.x, position.y] = tile;

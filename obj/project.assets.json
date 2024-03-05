@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\EpicGameEngine.csproj",
+      "projectUniqueName": "C:\\Users\\angry\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj",
       "projectName": "EpicGameEngine",
-      "projectPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\EpicGameEngine.csproj",
+      "projectPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine2\\EpicGameEngine.csproj",
       "packagesPath": "C:\\Users\\angry\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine\\obj\\",
+      "outputPath": "C:\\Users\\angry\\source\\repos\\EpicGameEngine2\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\angry\\AppData\\Roaming\\NuGet\\NuGet.Config",

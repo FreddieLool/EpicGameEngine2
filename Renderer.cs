@@ -2,16 +2,37 @@
 
 class Renderer
 {
-    Tilemap currentTilemap;
+    Tilemap _currentTilemap;
 
-    void Update()
+    public Renderer(Tilemap currentTileMap)
     {
-        for (int i = 0; i < currentTilemap.Width; i++)
+        _currentTilemap = currentTileMap;
+    }
+    public void Update()
+    {
+        for (int i = 0; i < _currentTilemap.Width; i++)
         {
-            for (int j = 0; j < currentTilemap.Height; j++)
+            for (int j = 0; j < _currentTilemap.Height; j++)
             {
-                Console.Write(currentTilemap.Board[j, i].ToString());
+             Tile tile =  _currentTilemap.getTile(new Vector2(i,j));
+                if(tile != null)
+                {
+                    if(tile.TileObject != null)
+                    {
+
+                        Console.Write(tile.TileObject.TileObjectIcon);
+                        Console.Write(' ');
+                        
+                    }
+                    else
+                    {
+                        Console.Write(_currentTilemap.Board[i, j].ToString());
+                    }
+                }
+               
+               
             }
+            Console.WriteLine();
         }
     }
 

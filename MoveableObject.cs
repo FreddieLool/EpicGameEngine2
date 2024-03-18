@@ -26,6 +26,10 @@ class MoveableObject : TileObject
         this.Tile = tile;
         this.Tile.TileObject = this;
         // Make TileObject move to destination Tile
+        if (tile.TileObject != null)
+        {
+            // then it means there is already a tile object there
+        }
     }
     public virtual bool IsTileAValidDest(Tile tile)
     {

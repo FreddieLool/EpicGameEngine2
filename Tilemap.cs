@@ -4,34 +4,43 @@
     {
         public abstract int Height { get; set; }
         public abstract int Width { get; set; }
-        public Tile[,] Board { get;}
-        private Tile[,] board;
+        public abstract Tile[,] Board { get; protected set; }
+        public abstract TileObject[,] tileObjects { get; protected set; }
+        
+       
 
 
-        public Tilemap(int Height, int Width)
-        {
-            this.Height = Height;
-            this.Width = Width;
-            board = new Tile[Width, Height];
-            InitalizeMap();
-        }
+        
         public virtual void InitalizeMap()
         {
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    board[Width, Height] = new Tile(new Vector2(i, j));
+                    Board[i, j] = new Tile(new Vector2(i, j));
                 }
             }
         }
-        public virtual void SetTile(Vector2 position, Tile tile)
+
+
+
+
+        public abstract void SetTile(Vector2 position, Tile tile);
+
+        public virtual void SetTileObject(TileObject tileObject)
         {
-            board[position.x, position.y] = tile;
+
+            Tile tile = tileObject.Tile;
+            tile.TileObject = tileObject;
+            
 
         }
+      
 
-
+        public virtual Tile getTile(Vector2 position)
+        {
+            return Board[position.x, position.y];
+        }
         //public IEnumerator<Tile> GetEnumerator()
         //{
         //    // Implement your custom logic for traversing the Tilemap

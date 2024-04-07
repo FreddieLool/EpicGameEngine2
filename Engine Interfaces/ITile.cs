@@ -4,6 +4,7 @@
     {
         TileObject Occupant { get; set; }
         bool IsPassable { get; }
+        Position Position {  get; protected set; }
 
         // for entering and exiting the tile
         void Enter(TileObject enteringObject);

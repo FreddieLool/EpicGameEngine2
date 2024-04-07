@@ -9,11 +9,11 @@ internal class ChessDemo : Tilemap, IRenderer
 
     private void InitializeChessPieces()
     {
-        // Place Black pieces
+        // Black pieces
         PlaceMajorPieces(0, Color.Black);
         PlacePawns(1, Color.Black);
 
-        // Place White pieces
+        // White pieces
         PlaceMajorPieces(Height - 1, Color.White);
         PlacePawns(Height - 2, Color.White);
     }

@@ -42,7 +42,7 @@
             OnExit?.Invoke(exitingObject);
         }
 
-        // Set new occupant and invoke OnExitw
+        // Set new tile occupant and invoke OnExitw
         public void SetOccupant(TileObject newOccupant)
         {
             Occupant = newOccupant;

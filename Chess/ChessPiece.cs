@@ -33,16 +33,6 @@ public class ChessPiece : TileObject
         };
         return clone;
     }
-
-    public override void MoveTo(Tile destinatiSonTile)
-    {
-        //
-    }
-
-    public override bool CanInteractWith(TileObject occupant)
-    {
-        return true;
-    }
 }
 
 public enum PieceType { Pawn, Rook, Knight, Bishop, Queen, King }

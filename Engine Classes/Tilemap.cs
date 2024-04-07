@@ -1,6 +1,6 @@
 ﻿namespace EpicTileEngine
 {
-    public abstract class Tilemap : ITilemap
+    public class Tilemap : ITilemap
     {
         private Tile[,] tileGrid;
         public int Width { get; private set; }

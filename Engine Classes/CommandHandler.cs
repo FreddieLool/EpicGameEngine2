@@ -21,11 +21,11 @@ namespace EpicGameEngine
             {
                 Position fromPos = ConvertNotationToPosition(parts[1]);
                 Position toPos = ConvertNotationToPosition(parts[2]);
-                TileObject mover = _chessBoard.GetTile(fromPos).Occupant;
+                Tile fromTile = _chessBoard.GetTile(fromPos);
 
-                if (mover != null)
+                if (fromTile.Occupant != null)
                 {
-                    return _movementManager.TryMove(mover, toPos, _chessBoard);
+                    return _movementManager.TryMove(fromTile.Occupant, toPos, _chessBoard);
                 }
                 else
                 {

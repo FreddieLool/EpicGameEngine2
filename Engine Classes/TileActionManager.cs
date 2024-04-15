@@ -14,6 +14,14 @@
         // move to a new position
         public virtual bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
         {
+            Tile targetTile = board.GetTile(targetPosition);
+
+            // Check if the move is valid (e.g., target tile is passable and not occupied by a friendly piece)
+            if (!targetTile.IsPassable || (targetTile.Occupant != null && targetTile.Occupant.ActorId == mover.ActorId))
+            {
+                return false;
+            }
+
             // is not valid move?
             if (ValidateMove != null && !ValidateMove(mover, targetPosition, board))
             {
@@ -26,8 +34,6 @@
             {
                 return false;
             }
-
-            Tile targetTile = board.GetTile(targetPosition);
 
             // target tile = occupied? > handle interaction
             if (targetTile.Occupant != null)

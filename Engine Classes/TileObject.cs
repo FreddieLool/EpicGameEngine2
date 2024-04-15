@@ -19,9 +19,18 @@
 
         public void SetTile(Tile tile)
         {
-            CurrentTile.Exit(this);
+            if (CurrentTile != null)
+            {
+                CurrentTile.Exit(this);
+            }
+
             CurrentTile = tile;
-            CurrentTile.Enter(this);
+
+            if (CurrentTile != null)
+            {
+                CurrentTile.Enter(this);
+            }
         }
+
     }
 }

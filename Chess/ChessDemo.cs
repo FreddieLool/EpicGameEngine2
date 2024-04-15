@@ -2,20 +2,26 @@
 
 internal class ChessDemo : Tilemap, IRenderer
 {
+    private Actor whitePlayer;
+    private Actor blackPlayer;
+
     public ChessDemo(int width, int height) : base(width, height)
     {
+        whitePlayer = new Actor(1, "White");
+        blackPlayer = new Actor(2, "Black");
+
         InitializeChessPieces();
     }
 
     private void InitializeChessPieces()
     {
         // Black pieces
-        PlaceMajorPieces(0, Color.Black);
-        PlacePawns(1, Color.Black);
+        PlaceMajorPieces(0, Color.Black, blackPlayer);
+        PlacePawns(1, Color.Black, blackPlayer);
 
         // White pieces
-        PlaceMajorPieces(Height - 1, Color.White);
-        PlacePawns(Height - 2, Color.White);
+        PlaceMajorPieces(Height - 1, Color.White, whitePlayer);
+        PlacePawns(Height - 2, Color.White, whitePlayer);
     }
 
     public void Render(Tilemap tilemap)
@@ -60,23 +66,36 @@ internal class ChessDemo : Tilemap, IRenderer
     }
 
 
-    private void PlaceMajorPieces(int row, Color color)
+    private void PlaceMajorPieces(int row, Color color, Actor player)
     {
-        this[new Position(0, row)].SetOccupant(new ChessPiece(PieceType.Rook, color));
-        this[new Position(1, row)].SetOccupant(new ChessPiece(PieceType.Knight, color));
-        this[new Position(2, row)].SetOccupant(new ChessPiece(PieceType.Bishop, color));
-        this[new Position(3, row)].SetOccupant(new ChessPiece(PieceType.Queen, color));
-        this[new Position(4, row)].SetOccupant(new ChessPiece(PieceType.King, color));
-        this[new Position(5, row)].SetOccupant(new ChessPiece(PieceType.Bishop, color));
-        this[new Position(6, row)].SetOccupant(new ChessPiece(PieceType.Knight, color));
-        this[new Position(7, row)].SetOccupant(new ChessPiece(PieceType.Rook, color));
+        // Place major pieces and assign them to the actor
+        ChessPiece[] pieces = new[]
+        {
+            new ChessPiece(PieceType.Rook, color),
+            new ChessPiece(PieceType.Knight, color),
+            new ChessPiece(PieceType.Bishop, color),
+            new ChessPiece(PieceType.Queen, color),
+            new ChessPiece(PieceType.King, color),
+            new ChessPiece(PieceType.Bishop, color),
+            new ChessPiece(PieceType.Knight, color),
+            new ChessPiece(PieceType.Rook, color)
+        };
+
+        for (int i = 0; i < pieces.Length; i++)
+        {
+            this[new Position(i, row)].SetOccupant(pieces[i]);
+            player.AddTileObject(pieces[i]);
+        }
     }
 
-    private void PlacePawns(int row, Color color)
+    private void PlacePawns(int row, Color color, Actor player)
     {
+        // Place pawns and assign them to the actor
         for (int col = 0; col < Width; col++)
         {
-            this[new Position(col, row)].SetOccupant(new ChessPiece(PieceType.Pawn, color));
+            var pawn = new ChessPiece(PieceType.Pawn, color);
+            this[new Position(col, row)].SetOccupant(pawn);
+            player.AddTileObject(pawn);
         }
     }
 }

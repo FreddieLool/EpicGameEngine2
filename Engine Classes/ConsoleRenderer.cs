@@ -1,26 +1,27 @@
-﻿using EpicTileEngine;
-
-public class ConsoleRenderer : IRenderer
+﻿namespace EpicTileEngine
 {
-    public virtual void Render(Tilemap tilemap)
+    public class ConsoleRenderer : IRenderer
     {
-        for (int y = 0; y < tilemap.Height; y++)
+        public virtual void Render(Tilemap tilemap)
         {
-            for (int x = 0; x < tilemap.Width; x++)
+            for (int y = 0; y < tilemap.Height; y++)
             {
-                var tile = tilemap[new Position(x, y)];
-                if (tile.Occupant != null)
+                for (int x = 0; x < tilemap.Width; x++)
                 {
-                    Console.Write($"[{tile.Occupant.Symbol}]");
+                    var tile = tilemap[new Position(x, y)];
+                    if (tile.Occupant != null)
+                    {
+                        Console.Write($"[{tile.Occupant.Symbol}]");
+                    }
+                    else
+                    {
+                        Console.Write("[");
+                        ConsoleRGB.Write("-", ConsoleColor.DarkGray);
+                        Console.Write("]");
+                    }
                 }
-                else
-                {
-                    Console.Write("[");
-                    ConsoleRGB.Write("-", ConsoleColor.DarkGray);
-                    Console.Write("]");
-                }
+                Console.WriteLine();
             }
-            Console.WriteLine();
         }
     }
 }

@@ -3,13 +3,13 @@
     public class TileActionManager : ITileActionManager
     {
         // for custom movement validation logic
-        public Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
+        public required Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
 
         // for handling interactions between tile objects
-        public Action<TileObject, TileObject> OnInteract { get; set; }
+        public required Action<TileObject, TileObject> OnInteract { get; set; }
 
         // for custom logic after a move is executed
-        public Action<TileObject, Tile> OnMove { get; set; }
+        public required Action<TileObject, Tile> OnMove { get; set; }
 
         // move to a new position
         public virtual bool TryMove(TileObject mover, Position targetPosition, Tilemap board)

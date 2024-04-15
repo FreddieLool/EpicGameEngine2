@@ -1,7 +1,4 @@
-﻿using EpicTileEngine;
-using System;
-
-namespace EpicGameEngine
+﻿namespace EpicTileEngine
 {
     public class CommandHandler
     {

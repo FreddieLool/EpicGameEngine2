@@ -7,11 +7,18 @@ internal class ChessDemo : Tilemap, IRenderer
 
     public ChessDemo(int width, int height) : base(width, height)
     {
+        // Ensure dimensions are properly set
+        if (width != 8 || height != 8)
+        {
+            throw new ArgumentException("Chess board must be 8x8.");
+        }
+
         whitePlayer = new Actor(1, "White");
         blackPlayer = new Actor(2, "Black");
 
         InitializeChessPieces();
     }
+
 
     private void InitializeChessPieces()
     {
@@ -20,8 +27,9 @@ internal class ChessDemo : Tilemap, IRenderer
         PlacePawns(1, Color.Black, blackPlayer);
 
         // White pieces
-        PlaceMajorPieces(Height - 1, Color.White, whitePlayer);
-        PlacePawns(Height - 2, Color.White, whitePlayer);
+        PlaceMajorPieces(Height - 1, Color.White, whitePlayer);  // Should be row 7 if Height is 8
+        PlacePawns(Height - 2, Color.White, whitePlayer);       // Should be row 6 if Height is 8
+
     }
 
     public void Render(Tilemap tilemap)
@@ -68,32 +76,42 @@ internal class ChessDemo : Tilemap, IRenderer
 
     private void PlaceMajorPieces(int row, Color color, Actor player)
     {
-        // Place major pieces and assign them to the actor
+        Console.WriteLine($"Tilemap height is set to: {Height}");
+        if (row < 0 || row >= Height)
+        {
+            throw new ArgumentOutOfRangeException(nameof(row), "Row index is out of the bounds of the Tilemap.");
+        }
+
         ChessPiece[] pieces = new[]
         {
-            new ChessPiece(PieceType.Rook, color),
-            new ChessPiece(PieceType.Knight, color),
-            new ChessPiece(PieceType.Bishop, color),
-            new ChessPiece(PieceType.Queen, color),
-            new ChessPiece(PieceType.King, color),
-            new ChessPiece(PieceType.Bishop, color),
-            new ChessPiece(PieceType.Knight, color),
-            new ChessPiece(PieceType.Rook, color)
+        new ChessPiece(PieceType.Rook, color, player.Id),
+        new ChessPiece(PieceType.Knight, color, player.Id),
+        new ChessPiece(PieceType.Bishop, color, player.Id),
+        new ChessPiece(PieceType.Queen, color, player.Id),
+        new ChessPiece(PieceType.King, color, player.Id),
+        new ChessPiece(PieceType.Bishop, color, player.Id),
+        new ChessPiece(PieceType.Knight, color, player.Id),
+        new ChessPiece(PieceType.Rook, color, player.Id)
         };
 
         for (int i = 0; i < pieces.Length; i++)
         {
+            if (i < 0 || i >= Width)
+            {
+                continue; // Skip this iteration if the column index is out of bounds
+            }
             this[new Position(i, row)].SetOccupant(pieces[i]);
             player.AddTileObject(pieces[i]);
         }
     }
+
 
     private void PlacePawns(int row, Color color, Actor player)
     {
         // Place pawns and assign them to the actor
         for (int col = 0; col < Width; col++)
         {
-            var pawn = new ChessPiece(PieceType.Pawn, color);
+            var pawn = new ChessPiece(PieceType.Pawn, color, player.Id);
             this[new Position(col, row)].SetOccupant(pawn);
             player.AddTileObject(pawn);
         }

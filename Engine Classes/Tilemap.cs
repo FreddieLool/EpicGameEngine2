@@ -1,67 +1,88 @@
 ﻿namespace EpicTileEngine
 {
-    public class Tilemap : ITilemap
+    public class Tilemap
     {
-        private Tile[,] tileGrid;
+        private Tile[,] tileBoard;
         public int Width { get; private set; }
         public int Height { get; private set; }
+
+
+        // usage: Tile tile = tilemap[pos];
+        public Tile this[Position pos]
+        {
+            get
+            {
+                if (!IsPositionValid(pos))
+                    throw new ArgumentOutOfRangeException(nameof(pos), "Coordinates are out of bounds.");
+                return tileBoard[pos.X, pos.Y];
+            }
+        }
+
+        // usage: Tile tile = tilemap[3, 2];
+        public Tile this[int x, int y]
+        {
+            get
+            {
+                if (!IsPositionValid(x, y))
+                    throw new ArgumentOutOfRangeException("Coordinates are out of bounds.");
+                return tileBoard[x, y];
+            }
+        }
 
         // Ctor & Initializes tilemap
         public Tilemap(int width, int height)
         {
             Width = width;
             Height = height;
-            InitializeMap(width, height);
+            InitializeMap();
         }
 
-        protected virtual void InitializeMap(int width, int height)
+        protected virtual void InitializeMap()
         {
-            tileGrid = new Tile[width, height];
-
-            for (int x = 0; x < width; x++)
+            tileBoard = new Tile[Width, Height];
+            for (int x = 0; x < Width; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < Height; y++)
                 {
-                    tileGrid[x, y] = new Tile(new Position(x, y));
+                    tileBoard[x, y] = new Tile();
                 }
             }
         }
 
-        // indexer based on Position
-        // usage: Tile tile = tilemap[pos];
-        public Tile this[Position position]
+        public bool IsPositionValid(Position position)
         {
-            get => tileGrid[position.X, position.Y];
-            private set => tileGrid[position.X, position.Y] = value;
+            return position.X >= 0 && position.X < Width && position.Y >= 0 && position.Y < Height;
         }
 
-        // indexer based on x, y
-        // usage: Tile tile = tilemap[3, 2];
-        public Tile this[int x, int y]
+        public bool IsPositionValid(int x, int y)
         {
-            get => tileGrid[x, y];
-            set => tileGrid[x, y] = value;
+            return x >= 0 && x < Width && y >= 0 && y < Height;
         }
 
-        public virtual Tile GetTile(Position position)
+        public virtual Tile GetTile(Position pos)
         {
-            if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
-                throw new ArgumentOutOfRangeException(nameof(position), "Coordinates are out of bounds.");
+            if (!IsPositionValid(pos))
+                throw new ArgumentOutOfRangeException(nameof(pos), "Coordinates are out of bounds.");
 
-            return this[position];
+            return this[pos];
         }
 
-        public virtual void SetTile(Position position, Tile tile)
+        public virtual Tile GetTile(int x, int y)
         {
-            if (position.X < 0 || position.X >= Width || position.Y < 0 || position.Y >= Height)
-                throw new ArgumentOutOfRangeException(nameof(position), "Coordinates are out of bounds.");
+            if (!IsPositionValid(x, y))
+                throw new ArgumentOutOfRangeException("Coordinates are out of bounds.");
 
-            this[position] = tile;
+            return this[x, y];
         }
 
-        public bool IsTileOccupied(Position position)
+        public bool IsTileOccupied(Position pos)
         {
-            return GetTile(position).Occupant != null;
+            return GetTile(pos).Occupant != null;
+        }
+
+        public bool IsTileOccupied(int x, int y)
+        {
+            return GetTile(x, y).Occupant != null;
         }
 
         public virtual IEnumerable<Tile> GetAllTiles()
@@ -70,7 +91,7 @@
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    yield return tileGrid[x, y];
+                    yield return tileBoard[x, y];
                 }
             }
         }

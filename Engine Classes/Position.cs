@@ -1,6 +1,6 @@
 ﻿namespace EpicTileEngine
 {
-    public readonly struct Position : IPosition
+    public readonly struct Position
     {
         public readonly int X { get; }
         public readonly int Y { get; }

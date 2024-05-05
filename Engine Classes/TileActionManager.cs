@@ -1,53 +1,85 @@
-﻿namespace EpicTileEngine
+﻿using System.Diagnostics;
+
+namespace EpicTileEngine
 {
-    public class TileActionManager : ITileActionManager
+    public class TileActionManager
     {
         // for custom movement validation logic
-        public required Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
+        public Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
 
         // for handling interactions between tile objects
-        public required Action<TileObject, TileObject> OnInteract { get; set; }
+        public Func<TileObject, TileObject, Tilemap, bool> OnInteract { get; set; }
+
 
         // for custom logic after a move is executed
-        public required Action<TileObject, Tile> OnMove { get; set; }
+        public Action<TileObject, Tile> OnMove { get; set; }
 
         // move to a new position
         public virtual bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
         {
-            Tile targetTile = board.GetTile(targetPosition);
+            Trace.WriteLine($"Attempt to move from {mover.CurrentTile.Position} to {targetPosition}");
+            if (!board.IsPositionValid(targetPosition))
+            {
+                Trace.WriteLine("Move out of bounds.");
+                return false;
+            }
 
-            // Check if the move is valid (e.g., target tile is passable and not occupied by a friendly piece)
+            Tile targetTile = board.GetTile(targetPosition);
             if (!targetTile.IsPassable || (targetTile.Occupant != null && targetTile.Occupant.ActorId == mover.ActorId))
             {
+                Trace.WriteLine("Move blocked or occupied by a friendly piece.");
                 return false;
             }
 
-            // is not valid move?
+            // Additional debug information:
+            Trace.WriteLine($"Target tile passable: {targetTile.IsPassable}, Occupied by self: {targetTile.Occupant?.ActorId == mover.ActorId}");
+
+            Position currentPos = mover.CurrentTile.Position;
+            Position moveVector = new Position(targetPosition.X - currentPos.X, targetPosition.Y - currentPos.Y);
+            int moveDistance = Math.Max(Math.Abs(moveVector.X), Math.Abs(moveVector.Y));
+
+            bool isMoveAllowed = false;
+            foreach (var (direction, maxSteps) in mover.MovementCapabilities)
+            {
+                if (moveVector.X == direction.X * moveDistance && moveVector.Y == direction.Y * moveDistance && moveDistance <= maxSteps)
+                {
+                    isMoveAllowed = true;
+                    break;
+                }
+            }
+
+            Trace.WriteLine($"Is move allowed: {isMoveAllowed}");
+            if (!isMoveAllowed)
+                return false;
+
             if (ValidateMove != null && !ValidateMove(mover, targetPosition, board))
             {
+                Trace.WriteLine("Move failed validation.");
                 return false;
             }
 
-            // p0s out of bounds?
-            if (targetPosition.X < 0 || targetPosition.X >= board.Width ||
-                targetPosition.Y < 0 || targetPosition.Y >= board.Height)
-            {
-                return false;
-            }
+            bool shouldMove = true;  // Default to moving unless interaction dictates otherwise
 
-            // target tile = occupied? > handle interaction
             if (targetTile.Occupant != null)
             {
-                OnInteract?.Invoke(mover, targetTile.Occupant);
+                shouldMove = OnInteract.Invoke(mover, targetTile.Occupant, board);
             }
 
-            // update the mover tile
-            // assuming every interaction means the mover tileobj vacates his tile to interacted with tile.
-            mover.SetTile(targetTile);
+            if (shouldMove)
+            {
+                mover.CurrentTile.RemoveOccupant();
+                targetTile.SetOccupant(mover);
+                OnMove?.Invoke(mover, targetTile);
+            }
+            else
+            {
+                Trace.WriteLine("Move blocked by interaction logic.");
+            }
 
-            OnMove?.Invoke(mover, targetTile);
-
-            return true;
+            return shouldMove;
         }
+
+
+
     }
 }

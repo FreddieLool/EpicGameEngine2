@@ -1,10 +1,12 @@
-﻿namespace EpicTileEngine
+﻿using System.Numerics;
+
+namespace EpicTileEngine
 {
     internal class Actor
     {
-        public int Id { get; private set; }
-        public string Name { get; private set; }
-        public List<TileObject> TileObjects { get; private set; }
+        public int Id { get; protected set; }
+        public string Name { get; protected set; }
+        public List<TileObject> TileObjects { get; protected set; }
 
         public Actor(int id, string name)
         {

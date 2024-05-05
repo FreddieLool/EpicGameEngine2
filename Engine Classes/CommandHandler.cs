@@ -2,50 +2,33 @@
 {
     public class CommandHandler
     {
-        private readonly ITileActionManager _movementManager;
-        private readonly Tilemap _chessBoard;
+        private readonly Dictionary<string, Func<string[], bool>> commands;
 
-        public CommandHandler(ITileActionManager movementManager, Tilemap chessBoard)
+        public CommandHandler()
         {
-            _movementManager = movementManager;
-            _chessBoard = chessBoard;
+            commands = new Dictionary<string, Func<string[], bool>>();
         }
 
-        public bool HandleCommand(string command)
+        public void RegisterCommand(string commandName, Func<string[], bool> action)
         {
-            string[] parts = command.Split(' ');
-            if (parts.Length == 3 && parts[0].ToLower() == "move")
-            {
-                Position fromPos = ConvertNotationToPosition(parts[1]);
-                Position toPos = ConvertNotationToPosition(parts[2]);
-                Tile fromTile = _chessBoard.GetTile(fromPos);
+            commands[commandName.ToLower()] = action;
+        }
 
-                if (fromTile.Occupant != null)
-                {
-                    return _movementManager.TryMove(fromTile.Occupant, toPos, _chessBoard);
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("[No piece at starting position]");
-                    Console.ResetColor();
-                    return false;
-                }
+        public bool HandleCommand(string input)
+        {
+            string[] parts = input.Trim().Split();
+            string commandName = parts[0].ToLower();
+            if (commands.ContainsKey(commandName))
+            {
+                return commands[commandName](parts);
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[Invalid command]");
+                Console.WriteLine("[Unknown command]");
                 Console.ResetColor();
                 return false;
             }
-        }
-
-        private Position ConvertNotationToPosition(string notation)
-        {
-            int x = notation[0] - 'a';
-            int y = 8 - (notation[1] - '0');
-            return new Position(x, y);
         }
     }
 }

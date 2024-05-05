@@ -9,7 +9,7 @@ public class Program
     {
         ChessDemo chessBoard = new ChessDemo(8, 8);
         MovementManager movementManager = new MovementManager();
-        CommandHandler commandHandler = new CommandHandler(movementManager, chessBoard);
+        ChessCommandHandler commandHandler = new ChessCommandHandler(chessBoard, movementManager);
 
         RenderWelcomeMessage();
         chessBoard.Render(chessBoard);
@@ -30,6 +30,7 @@ public class Program
                 UpdateCommandHistory(command);
             }
 
+//            chessBoard.Render(chessBoard);
             RenderCommandHistoryAtBottom();
         }
     }

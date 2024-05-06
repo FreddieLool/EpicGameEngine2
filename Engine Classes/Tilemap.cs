@@ -45,6 +45,7 @@
                 for (int y = 0; y < Height; y++)
                 {
                     tileBoard[x, y] = new Tile();
+                    tileBoard[x,y].Position = new Position(x, y);
                 }
             }
         }

@@ -28,6 +28,7 @@ public class Program
             if (isValidCommand)
             {
                 UpdateCommandHistory(command);
+                chessBoard.Render(chessBoard);
             }
 
 //            chessBoard.Render(chessBoard);

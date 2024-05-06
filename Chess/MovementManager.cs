@@ -123,6 +123,7 @@ public class MovementManager : TileActionManager
         }
 
         targetTile.SetOccupant(mover);
+        currentTile.RemoveOccupant();
 
         OnMove(mover, targetTile); // Trigger any move-related actions
 
@@ -165,7 +166,7 @@ public class MovementManager : TileActionManager
     }
     private IEnumerable<Position> GetPawnMoves(ChessPiece piece, Tilemap board)
     {
-        int direction = piece.Color == Color.White ? 1 : -1;
+        int direction = piece.Color == Color.White ? -1 : 1;
         Position currentPosition = piece.CurrentTile.Position;
         Position singleStepForward = new Position(currentPosition.X, currentPosition.Y + direction);
 

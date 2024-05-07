@@ -1,4 +1,5 @@
 ﻿
+using EpicGameEngine;
 using EpicTileEngine;
 
 public class Program
@@ -6,11 +7,15 @@ public class Program
     private static Queue<string> commandHistory = new Queue<string>(10);
     private static ChessCommandHandler chessCommandHandler;
     private static ChessDemo chessBoard;
+    
     static void Main()
     {
         chessBoard = new ChessDemo(8, 8);
         MovementManager movementManager = new MovementManager();
-        chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager);
+        ChessTurnManager turnManager = new ChessTurnManager(chessBoard.whitePlayer,chessBoard.blackPlayer);
+        
+        
+        chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager,turnManager);
 
         // sub to OnGameReset
         chessBoard.OnGameReset += chessCommandHandler.ResetSelectionAndState;

@@ -7,7 +7,7 @@ namespace EpicTileEngine
         public int Id { get; protected set; }
         public string Name { get; protected set; }
         public List<TileObject> TileObjects { get; protected set; }
-
+        public bool IsPlaying { get; protected set; }
         public Actor(int id, string name)
         {
             Id = id;
@@ -22,6 +22,10 @@ namespace EpicTileEngine
                 TileObjects.Add(tileObject);
                 tileObject.ActorId = this.Id;
             }
+        }
+        public void ChangePlayingStatus(bool b)
+        {
+            IsPlaying = b;
         }
     }
 }

@@ -119,7 +119,7 @@ internal class ChessCommandHandler : CommandHandler
                         selectedPiece = chessBoard.GetTile(to).Occupant; // Update the selected piece reference
                         highlightedPositions = movementManager.GetValidMoves((ChessPiece)selectedPiece, chessBoard).ToList();
                         Trace.WriteLine($"Move successful to {to}. Valid moves updated.");
-                        chessTurnManager.changeTurns();
+                        chessTurnManager.ChangeTurns();
                         ClearErrorMessage();
                     }
                     else

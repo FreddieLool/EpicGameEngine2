@@ -36,7 +36,7 @@
             }
             else
             {
-                DisplayNotificationMessage($"[Unknown command: {commandName}]");
+                DisplayNotificationMessage($"[Unknown command: {commandName}] - help to display list of cmds");
                 return false;
             }
         }
@@ -67,6 +67,5 @@
             Program.RenderWelcomeMessage();
             Console.SetCursorPosition(0, 1);
         }
-
     }
 }

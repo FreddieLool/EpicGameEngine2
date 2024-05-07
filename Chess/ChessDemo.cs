@@ -43,7 +43,7 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         // Trigger the event
         OnGameReset?.Invoke();
 
-        CommandHandler.DisplayNotificationMessage("Game has been restarted.");
+        CommandHandler.DisplayNotificationMessage("Game has been restarted.", ConsoleColor.Blue);
     }
 
     private void InitializeChessPieces()

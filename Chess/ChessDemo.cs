@@ -5,8 +5,8 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
     public delegate void GameResetHandler();
     public event GameResetHandler OnGameReset;
 
-    private Actor whitePlayer;
-    private Actor blackPlayer;
+    public Actor whitePlayer;
+    public Actor blackPlayer;
 
     public ChessDemo(int width, int height) : base(width, height)
     {

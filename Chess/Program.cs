@@ -4,34 +4,42 @@ using EpicTileEngine;
 public class Program
 {
     private static Queue<string> commandHistory = new Queue<string>(10);
-
+    private static ChessCommandHandler chessCommandHandler;
+    private static ChessDemo chessBoard;
     static void Main()
     {
-        ChessDemo chessBoard = new ChessDemo(8, 8);
+        chessBoard = new ChessDemo(8, 8);
         MovementManager movementManager = new MovementManager();
-        ChessCommandHandler commandHandler = new ChessCommandHandler(chessBoard, movementManager);
+        chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager);
 
+        // sub to OnGameReset
+        chessBoard.OnGameReset += chessCommandHandler.ResetSelectionAndState;
+
+        RegisterCommands();
+        MainLoop();
+    }
+
+    static void MainLoop()
+    {
         RenderWelcomeMessage();
-        chessBoard.Render(chessBoard);
+        chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
 
         while (true)
         {
             ClearCurrentCommandLine();
-
-            Console.SetCursorPosition(0, 0);
             Console.Write("> ");
             string command = Console.ReadLine()?.Trim();
 
             if (string.Equals(command, "exit", StringComparison.OrdinalIgnoreCase)) break;
 
-            bool isValidCommand = commandHandler.HandleCommand(command);
+            bool isValidCommand = chessCommandHandler.HandleCommand(command);
             if (isValidCommand)
             {
                 UpdateCommandHistory(command);
-                chessBoard.Render(chessBoard);
+                chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
             }
 
-//            chessBoard.Render(chessBoard);
+            chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
             RenderCommandHistoryAtBottom();
         }
     }
@@ -43,18 +51,15 @@ public class Program
         Console.SetCursorPosition(0, 0);
     }
 
-    private static void RenderWelcomeMessage()
+    public static void RenderWelcomeMessage()
     {
         ConsoleRGB.WriteLine(@"
-            
                                              _____ _                     _       
                                             /  __ \ |                   (_)      
                                             | /  \/ |__   ___  ___ ___   _  ___  
                                             | |   | '_ \ / _ \/ __/ __| | |/ _ \ 
                                             | \__/\ | | |  __/\__ \__ \_| | (_) |
-                                             \____/_| |_|\___||___/___(_)_|\___/ 
-                                     
-                                     
+                                             \____/_| |_|\___||___/___(_)_|\___/              
         ", ConsoleColor.Yellow);
     }
 
@@ -65,6 +70,16 @@ public class Program
             commandHistory.Dequeue();
         }
         commandHistory.Enqueue(command);
+    }
+
+    static void RegisterCommands()
+    {
+        chessCommandHandler.RegisterCommand("start", args =>
+        {
+            chessBoard.ResetGame();
+            chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
+            return true;
+        }, "start - Starts or restarts a new game of chess.");
     }
 
     private static void RenderCommandHistoryAtBottom()

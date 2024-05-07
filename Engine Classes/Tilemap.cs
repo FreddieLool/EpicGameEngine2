@@ -1,6 +1,8 @@
-﻿namespace EpicTileEngine
+﻿using System.Collections;
+
+namespace EpicTileEngine
 {
-    public class Tilemap
+    public class Tilemap : IEnumerable<Tile>
     {
         private Tile[,] tileBoard;
         public int Width { get; private set; }
@@ -32,6 +34,12 @@
         // Ctor & Initializes tilemap
         public Tilemap(int width, int height)
         {
+            // Hard limit
+            if (width > 100 || height > 100)
+            {
+                throw new ArgumentException("Maximum size for Tilemap is 100x100.");
+            }
+
             Width = width;
             Height = height;
             InitializeMap();
@@ -62,18 +70,35 @@
 
         public virtual Tile GetTile(Position pos)
         {
-            if (!IsPositionValid(pos))
-                throw new ArgumentOutOfRangeException(nameof(pos), "Coordinates are out of bounds.");
+            try
+            {
+                if (!IsPositionValid(pos))
+                    throw new ArgumentOutOfRangeException(nameof(pos), "Coordinates are out of bounds.");
 
-            return this[pos];
+                return this[pos];
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                CommandHandler.DisplayNotificationMessage(ex.Message, ConsoleColor.Red);
+                return null;
+            }
         }
+
 
         public virtual Tile GetTile(int x, int y)
         {
-            if (!IsPositionValid(x, y))
-                throw new ArgumentOutOfRangeException("Coordinates are out of bounds.");
+            try
+            {
+                if (!IsPositionValid(x, y))
+                    throw new ArgumentOutOfRangeException("Coordinates are out of bounds.");
 
-            return this[x, y];
+                return this[x, y];
+            }
+            catch (ArgumentOutOfRangeException ex)
+            {
+                CommandHandler.DisplayNotificationMessage(ex.Message, ConsoleColor.Red);
+                return null;
+            }
         }
 
         public bool IsTileOccupied(Position pos)
@@ -96,5 +121,81 @@
                 }
             }
         }
+
+        public IEnumerator<Tile> GetEnumerator()
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    yield return tileBoard[x, y];
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns the tiles from the Tilemap starting at a given position, expanding outward in a spiral pattern.
+        /// </summary>
+        /// <param name="startPosition">The starting position for the spiral traversal.</param>
+        /// <returns>A collection of tiles in spiral order, starting from the specified position.</returns>
+        public IEnumerable<Tile> GetTilesInSpiralOrder(Position startPosition)
+        {
+            // Initialize coordinates to the starting position
+            int x = startPosition.X;
+            int y = startPosition.Y;
+
+            // Set the initial direction to upward (dx = 0, dy = -1)
+            int dx = 0;
+            int dy = -1;
+
+            // Calculate the maximum number of iterations needed (total tiles in the tilemap)
+            int maxI = Width * Height;
+
+            // Determine the maximum spiral size (accommodating non-square grids)
+            int size = Math.Max(Width, Height);
+
+            // for debugging
+            int steps = 1;
+
+            // Iterate through all possible tile positions up to the total tile count
+            for (int i = 0; i < maxI; i++)
+            {
+                // Check if the current coordinates lie within the maximum size boundary
+                // The boundary is centered at the starting point and grows outward
+                if (-size / 2 < x && x <= size / 2 && -size / 2 < y && y <= size / 2)
+                {
+                    // Translate coordinates back to the positive grid range
+                    // and yield the tile if within the bounds of the Tilemap
+                    int translateX = x + startPosition.X;
+                    int translateY = y + startPosition.Y;
+                    if (translateX >= 0 && translateX < Width && translateY >= 0 && translateY < Height)
+                    {
+                        yield return tileBoard[translateX, translateY];
+                    }
+                }
+
+                // Adjust the direction of the spiral based on specific points in the pattern:
+                // - When reaching the diagonal (x == y)
+                // - The lower left diagonal (-x == y)
+                // - The upper right diagonal (x == 1 - y)
+                if (x == y || (x < 0 && x == -y) || (x > 0 && x == 1 - y))
+                {
+                    // Change direction in a circular manner
+                    int temp = dx;
+                    dx = -dy;
+                    dy = temp;
+                }
+
+                // Move the coordinates forward in the current direction
+                x += dx;
+                y += dy;
+            }
+        }
+
     }
 }

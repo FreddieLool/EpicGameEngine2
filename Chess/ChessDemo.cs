@@ -1,7 +1,10 @@
 ﻿using EpicTileEngine;
 
-internal class ChessDemo : Tilemap, IRenderer
+internal class ChessDemo : Tilemap/*, IRenderer*/
 {
+    public delegate void GameResetHandler();
+    public event GameResetHandler OnGameReset;
+
     private Actor whitePlayer;
     private Actor blackPlayer;
 
@@ -13,12 +16,35 @@ internal class ChessDemo : Tilemap, IRenderer
             throw new ArgumentException("Chess board must be 8x8.");
         }
 
+        InitializeGame();
+    }
+
+    private void InitializeGame()
+    {
         whitePlayer = new Actor(1, "White");
         blackPlayer = new Actor(2, "Black");
-
         InitializeChessPieces();
     }
 
+    public void ResetGame()
+    {
+        // Clear the board
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                this[new Position(x, y)].RemoveOccupant();
+            }
+        }
+
+        // Reinitialize da chess pieces
+        InitializeChessPieces();
+
+        // Trigger the event
+        OnGameReset?.Invoke();
+
+        CommandHandler.DisplayNotificationMessage("Game has been restarted.");
+    }
 
     private void InitializeChessPieces()
     {
@@ -32,51 +58,73 @@ internal class ChessDemo : Tilemap, IRenderer
 
     }
 
-    public void Render(Tilemap tilemap)
+    public void Render(Tilemap tilemap, List<Position> highlightedPositions)
     {
-        int boardWidth = tilemap.Width * 3; // [-] each tile is 3 chars
+        int boardWidth = tilemap.Width * 3;  // Each tile is 3 chars wide
         int boardHeight = tilemap.Height;
 
         int consoleWidth = Console.WindowWidth;
         int consoleHeight = Console.WindowHeight;
 
-        // center the board
-        int startX = (consoleWidth - boardWidth) / 2;
+        // Center the board, adjusting startX for row numbers
+        int startX = (consoleWidth - boardWidth) / 2 + 4; // Added 4 spaces for row numbers
         int startY = (consoleHeight - boardHeight) / 2;
 
-        // ensures startY is non-negative
+        // Ensures startY is non-negative
         startY = Math.Max(startY, 0);
 
+        // Render the row numbers
         for (int y = 0; y < tilemap.Height; y++)
         {
-            // Set cursor position to start of each row centered horizontally
-            Console.SetCursorPosition(startX, startY + y);
+            Console.SetCursorPosition(startX - 2, startY + y); // Move cursor left from the start of the row
+            ConsoleRGB.Write(8 - y, ConsoleColor.DarkGray);  // Chess rows go from 8 at the top to 1 at the bottom
+        }
 
+        // Render the board
+        for (int y = 0; y < tilemap.Height; y++)
+        {
+            Console.SetCursorPosition(startX, startY + y);
             for (int x = 0; x < tilemap.Width; x++)
             {
-                var tile = tilemap[new Position(x, y)];
+                Position currentPosition = new Position(x, y);
+                ConsoleColor backgroundColor = highlightedPositions.Contains(currentPosition) ? ConsoleColor.Green : Console.BackgroundColor;
+
+                var tile = tilemap[currentPosition];
                 if (tile.Occupant != null)
                 {
+                    ConsoleColor pieceColor = tile.Occupant.ActorId == 1 ? ConsoleColor.Yellow : ConsoleColor.Gray;
+                    backgroundColor = highlightedPositions.Contains(currentPosition) ? ConsoleColor.Green : backgroundColor;
                     Console.Write($"[");
-                    if (tile.Occupant is ChessPiece piece)
-                    {
-                        ConsoleColor color = piece.Color == Color.White ? ConsoleColor.Yellow : ConsoleColor.Gray;
-                        ConsoleRGB.Write($"{piece.Symbol}", color, Console.BackgroundColor);
-                    }
+                    Console.BackgroundColor = backgroundColor;
+                    Console.ForegroundColor = pieceColor;
+                    Console.Write($"{tile.Occupant.Symbol}");
+                    Console.ResetColor();
                     Console.Write($"]");
                 }
                 else
                 {
-                    ConsoleRGB.Write("[-]", ConsoleColor.DarkGray, Console.BackgroundColor);
+                    Console.ForegroundColor = backgroundColor;
+                    Console.Write("[");
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("-");
+                    Console.ForegroundColor = backgroundColor;
+                    Console.Write("]");
+                    Console.ResetColor();
                 }
             }
         }
-    }
 
+        // Render the column labels
+        Console.SetCursorPosition(startX, startY + tilemap.Height);
+        for (int x = 0; x < tilemap.Width; x++)
+        {
+            if (x > 0) Console.Write(" "); // adjust spacing
+            ConsoleRGB.Write(" " + (char)('A' + x), ConsoleColor.DarkGray);  // A to H
+        }
+    }
 
     private void PlaceMajorPieces(int row, Color color, Actor player)
     {
-        Console.WriteLine($"Tilemap height is set to: {Height}");
         if (row < 0 || row >= Height)
         {
             throw new ArgumentOutOfRangeException(nameof(row), "Row index is out of the bounds of the Tilemap.");
@@ -98,7 +146,7 @@ internal class ChessDemo : Tilemap, IRenderer
         {
             if (i < 0 || i >= Width)
             {
-                continue; // Skip this iteration if the column index is out of bounds
+                continue; // Skip iteration if the column index is out of bounds
             }
             this[new Position(i, row)].SetOccupant(pieces[i]);
             player.AddTileObject(pieces[i]);

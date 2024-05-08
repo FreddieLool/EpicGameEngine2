@@ -26,6 +26,17 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         InitializeChessPieces();
     }
 
+    public void ResetBoard()
+    {
+        for (int y = 0; y < Height; y++)
+        {
+            for (int x = 0; x < Width; x++)
+            {
+                this[new Position(x, y)].RemoveOccupant();
+            }
+        }
+    }
+
     public void ResetGame()
     {
         // Clear the board
@@ -110,6 +121,15 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
                     Console.ForegroundColor = backgroundColor;
                     Console.Write("]");
                     Console.ResetColor();
+                }
+
+                if (tile.IsHighlighted)
+                {
+                    Console.BackgroundColor = ConsoleColor.Green;  // Highlight color
+                }
+                else
+                {
+                    Console.BackgroundColor = ConsoleColor.Black;  // Default background color
                 }
             }
         }

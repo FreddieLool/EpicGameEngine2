@@ -61,5 +61,11 @@ namespace EpicGameEngine
                 blackPlayer.ChangePlayingStatus(false);
             }
         }
+
+        public void ResetTurns()
+        {
+            whitePlayer.ChangePlayingStatus(true);
+            blackPlayer.ChangePlayingStatus(false);
+        }
     }
 }

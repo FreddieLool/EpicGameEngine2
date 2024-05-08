@@ -7,6 +7,8 @@ public class Program
     private static Queue<string> commandHistory = new Queue<string>(10);
     private static ChessCommandHandler chessCommandHandler;
     private static ChessDemo chessBoard;
+    private static ChessTurnManager turnManager;
+    private static MovementManager movementManager;
 
 
     static void Main()
@@ -14,8 +16,8 @@ public class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         chessBoard = new ChessDemo(8, 8);
-        ChessTurnManager turnManager = new ChessTurnManager(chessBoard.whitePlayer,chessBoard.blackPlayer);
-        MovementManager movementManager = new MovementManager(turnManager);
+        turnManager = new ChessTurnManager(chessBoard.whitePlayer,chessBoard.blackPlayer);
+        movementManager = new MovementManager(turnManager);
         
         
         chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager,turnManager);
@@ -114,6 +116,7 @@ public class Program
         {
             
             chessBoard.ResetGame();
+            turnManager.ResetTurns();
             chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
             return true;
         }, "restart - Restarts a new game of chess.");
@@ -123,7 +126,68 @@ public class Program
             CurtainAnimation();
             return true;
         }, "credits - Show game credits and information.");
+
+        chessCommandHandler.RegisterCommand("spiral", args =>
+        {
+            PerformSpiralDemo();
+            return true;
+        }, "spiral - Demonstrates spiral thingy");
     }
+
+    public static void PerformSpiralDemo()
+    {
+        Console.WriteLine("Press any key to start the spiral demo...");
+        Console.ReadKey(true);
+
+        chessBoard.ResetBoard();
+
+        int centerX = chessBoard.Width / 2;
+        int centerY = chessBoard.Height / 2;
+
+        // Adjust center position for even dimensions
+        if (chessBoard.Width % 2 == 0) centerX -= 1;
+        if (chessBoard.Height % 2 == 0) centerY -= 1;
+
+        Position centerPosition = new Position(centerX, centerY);
+        ChessPiece spiralPiece = new ChessPiece(PieceType.Rook, Color.White, 1);
+        chessBoard[centerPosition].SetOccupant(spiralPiece);
+        spiralPiece.CurrentTile = chessBoard[centerPosition];
+
+        RenderGame();
+
+        // Get tiles
+        var tilesInSpiral = chessBoard.GetTilesInSpiralOrder(centerPosition).ToList();
+        foreach (var tile in tilesInSpiral)
+        {
+            Console.WriteLine("Press any key for the next move...");
+            Console.ReadKey(true);
+
+            // Highlight
+            tile.IsHighlighted = true;
+            RenderGame();
+        }
+
+        ClearHighlights();
+        RenderGame();
+    }
+
+
+
+    public static void HighlightTile(Position pos)
+    {
+        chessBoard[pos].IsHighlighted = true;
+    }
+
+    public static void ClearHighlights()
+    {
+        foreach (var tile in chessBoard)
+        {
+            tile.IsHighlighted = false;
+            tile.RemoveOccupant();
+        }
+    }
+
+
 
     private static void RenderCommandHistoryAtBottom()
     {

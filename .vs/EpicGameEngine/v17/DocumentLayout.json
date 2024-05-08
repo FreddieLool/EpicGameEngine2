@@ -3,40 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\engine classes\\actor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:engine classes\\actor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\chess\\chesscommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chesscommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\chess\\chessdemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chessdemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\engine classes\\tile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:engine classes\\tile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\engine classes\\tilemap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:engine classes\\tilemap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\movementmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\movementmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\chessturnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chessturnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\chesspiece.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chesspiece.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\chessdemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chessdemo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\chesscommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chesscommandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\engine classes\\commandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:engine classes\\commandhandler.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|c:\\users\\wael\\source\\repos\\epicgameengine2\\chess\\chessai.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{766A9C82-47F8-4DC1-B957-F37B9950CCA8}|EpicGameEngine.csproj|solutionrelative:chess\\chessai.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -55,118 +39,66 @@
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "MovementManager.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\MovementManager.cs",
-              "RelativeDocumentMoniker": "Chess\\MovementManager.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\MovementManager.cs",
-              "RelativeToolTip": "Chess\\MovementManager.cs",
-              "ViewState": "AQIAAGcAAAAAAAAAAAAcwMwAAAAAAAAA",
+              "Title": "Tile.cs",
+              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Tile.cs",
+              "RelativeDocumentMoniker": "Engine Classes\\Tile.cs",
+              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Tile.cs",
+              "RelativeToolTip": "Engine Classes\\Tile.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAABAwEAAAAAKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T10:04:28.482Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ChessTurnManager.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessTurnManager.cs",
-              "RelativeDocumentMoniker": "Chess\\ChessTurnManager.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessTurnManager.cs",
-              "RelativeToolTip": "Chess\\ChessTurnManager.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T10:04:27.214Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ChessAI.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessAI.cs",
-              "RelativeDocumentMoniker": "Chess\\ChessAI.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessAI.cs",
-              "RelativeToolTip": "Chess\\ChessAI.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAlAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T09:51:33.726Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Actor.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Actor.cs",
-              "RelativeDocumentMoniker": "Engine Classes\\Actor.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Actor.cs",
-              "RelativeToolTip": "Engine Classes\\Actor.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T09:49:47.205Z",
+              "WhenOpened": "2024-05-08T12:41:35.823Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "ChessPiece.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessPiece.cs",
-              "RelativeDocumentMoniker": "Chess\\ChessPiece.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessPiece.cs",
-              "RelativeToolTip": "Chess\\ChessPiece.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABsAAAAYAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T09:37:12.59Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\Program.cs",
               "RelativeDocumentMoniker": "Chess\\Program.cs",
               "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\Program.cs",
               "RelativeToolTip": "Chess\\Program.cs",
-              "ViewState": "AQIAAE0BAAAAAAAAAAAzwDMAAABIAAAA",
+              "ViewState": "AQIAAGMAAAAAAAAAAAAswG4AAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T08:52:17.771Z",
+              "WhenOpened": "2024-05-08T12:31:02.693Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
+              "Title": "Tilemap.cs",
+              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Tilemap.cs",
+              "RelativeDocumentMoniker": "Engine Classes\\Tilemap.cs",
+              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\Tilemap.cs",
+              "RelativeToolTip": "Engine Classes\\Tilemap.cs",
+              "ViewState": "AQIAAIYAAAAAAAAAAAAmwL8AAAAVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-08T12:29:49.404Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "ChessCommandHandler.cs",
               "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessCommandHandler.cs",
               "RelativeDocumentMoniker": "Chess\\ChessCommandHandler.cs",
               "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessCommandHandler.cs",
               "RelativeToolTip": "Chess\\ChessCommandHandler.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAAAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAkAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-07T19:38:16.883Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 1,
               "Title": "ChessDemo.cs",
               "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessDemo.cs",
               "RelativeDocumentMoniker": "Chess\\ChessDemo.cs",
               "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Chess\\ChessDemo.cs",
               "RelativeToolTip": "Chess\\ChessDemo.cs",
-              "ViewState": "AQIAADEAAAAAAAAAAAAuwA4AAAAJAAAA",
+              "ViewState": "AQIAAGwAAAAAAAAAAADwv4IAAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-05-08T07:55:02.168Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CommandHandler.cs",
-              "DocumentMoniker": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\CommandHandler.cs",
-              "RelativeDocumentMoniker": "Engine Classes\\CommandHandler.cs",
-              "ToolTip": "C:\\Users\\Wael\\source\\repos\\EpicGameEngine2\\Engine Classes\\CommandHandler.cs",
-              "RelativeToolTip": "Engine Classes\\CommandHandler.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAAmAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-05-08T08:17:41.074Z",
               "EditorCaption": ""
             }
           ]

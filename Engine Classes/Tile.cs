@@ -12,7 +12,7 @@
         public TileObject? Occupant { get; set; }
         public Position Position { get; set; }
         public bool IsPassable { get; protected set; }
-
+        public bool IsHighlighted { get; set; }
         public TileType Type { get; set; }
 
         public event Action<TileObject, Tile> OnEnter; // Triggered when a TileObject lands on this tile
@@ -62,7 +62,7 @@
             }
         }
 
-        // Method to safely trigger the OnPass event
+        // safely trigger the OnPass event
         public void TriggerOnPass(TileObject mover)
         {
             OnPass?.Invoke(mover, this);

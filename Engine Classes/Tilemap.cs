@@ -156,56 +156,50 @@ namespace EpicTileEngine
         /// <returns>A collection of tiles in spiral order, starting from the specified position.</returns>
         public IEnumerable<Tile> GetTilesInSpiralOrder(Position startPosition)
         {
-            int x = startPosition.X;
-            int y = startPosition.Y;
+            int x = 0, y = 0;
+            int dx = 1, dy = 0; // Start by moving to the right
+            int segment_length = 1;
 
-            // Set initial direction upward (dx = 0, dy = -1)
-            int dx = 0;
-            int dy = -1;
+            // Current segment length and the number of steps taken in current direction
+            int steps = 0, segment_passed = 0;
 
-            // Calculate the maximum number of iterations needed (total tiles in the tilemap)
-            int maxI = Width * Height;
-
-            // Determine the maximum spiral size (accommodating non-square grids)
-            int size = Math.Max(Width, Height);
-
-            // for debugging
-            int steps = 1;
-
-            // Iterate through all possible tile positions up to the total tile count
-            for (int i = 0; i < maxI; i++)
+            for (int i = 0; i < Width * Height; i++)
             {
-                // Check if the current coordinates lie within the maximum size boundary
-                // The boundary is centered at the starting point and grows outward
-                if (-size / 2 < x && x <= size / 2 && -size / 2 < y && y <= size / 2)
+                // Calculate the actual x, y
+                int actualX = startPosition.X + x;
+                int actualY = startPosition.Y + y;
+
+                if (actualX >= 0 && actualX < Width && actualY >= 0 && actualY < Height)
                 {
-                    // Translate coordinates back to the positive grid range
-                    // and yield the tile if within the bounds of the Tilemap
-                    int translateX = x + startPosition.X;
-                    int translateY = y + startPosition.Y;
-                    if (translateX >= 0 && translateX < Width && translateY >= 0 && translateY < Height)
+                    yield return tileBoard[actualX, actualY];
+                }
+
+                // Move to the next cell
+                steps++;
+                if (steps == segment_length)
+                {
+                    // Change dir
+                    steps = 0;
+                    segment_passed++;
+
+                    // Rotate direction clockwise: (dx, dy) -> (dy, -dx)
+                    int temp = dy;
+                    dy = -dx;
+                    dx = temp;
+
+                    // Increase segment length every two segments (full cycle around the spiral)
+                    if (segment_passed % 2 == 0)
                     {
-                        yield return tileBoard[translateX, translateY];
+                        segment_length++;
                     }
                 }
 
-                // Adjust the direction of the spiral based on specific points in the pattern:
-                // - When reaching the diagonal (x == y)
-                // - The lower left diagonal (-x == y)
-                // - The upper right diagonal (x == 1 - y)
-                if (x == y || (x < 0 && x == -y) || (x > 0 && x == 1 - y))
-                {
-                    // Change direction in a circular manner
-                    int temp = dx;
-                    dx = -dy;
-                    dy = temp;
-                }
-
-                // Move the coordinates forward in the current direction
                 x += dx;
                 y += dy;
             }
         }
+
+
 
     }
 }

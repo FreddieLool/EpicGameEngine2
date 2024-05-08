@@ -7,12 +7,15 @@ public class Program
     private static Queue<string> commandHistory = new Queue<string>(10);
     private static ChessCommandHandler chessCommandHandler;
     private static ChessDemo chessBoard;
-    
+
+
     static void Main()
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+
         chessBoard = new ChessDemo(8, 8);
-        MovementManager movementManager = new MovementManager();
         ChessTurnManager turnManager = new ChessTurnManager(chessBoard.whitePlayer,chessBoard.blackPlayer);
+        MovementManager movementManager = new MovementManager(turnManager);
         
         
         chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager,turnManager);
@@ -28,6 +31,7 @@ public class Program
     {
         RenderWelcomeMessage();
         RenderGame();
+        chessCommandHandler.DisplayGameState();  // Initial state display
 
         while (true)
         {
@@ -45,6 +49,7 @@ public class Program
             }
 
             RenderGame();
+            chessCommandHandler.DisplayGameState(); // refresh every cmd
             RenderCommandHistoryAtBottom();
         }
     }
@@ -63,15 +68,36 @@ public class Program
 
     public static void RenderWelcomeMessage()
     {
-        ConsoleRGB.WriteLine(@"
-                                             _____ _                     _       
-                                            /  __ \ |                   (_)      
-                                            | /  \/ |__   ___  ___ ___   _  ___  
-                                            | |   | '_ \ / _ \/ __/ __| | |/ _ \ 
-                                            | \__/\ | | |  __/\__ \__ \_| | (_) |
-                                             \____/_| |_|\___||___/___(_)_|\___/              
-        ", ConsoleColor.Yellow);
+        string welcomeMessage = @"                
+                                                                         |\_
+                                                                        /  .\_
+            ______              _           __  _______                |   ___)
+           /_  __/__ ______ _  (_)__  ___ _/ / / ___/ /  ___ ___ ___   |    \   
+            / / / -_) __/  ' \/ / _ \/ _ `/ / / /__/ _ \/ -_|_-<(_-<   |  =  |  
+           /_/  \__/_/ /_/_/_/_/_//_/\_,_/_/  \___/_//_/\__/___/___/   /_____\     
+                                                                      [_______]
+    ";
+
+        int maxWidth = welcomeMessage.Split('\n').Max(line => line.Length);
+
+        int consoleWidth = Console.WindowWidth;
+        int consoleHeight = Console.WindowHeight;
+
+        // Center horizontally
+        int startX = (consoleWidth - maxWidth) / 2;
+        // starts 2 lines from top
+        int startY = 2;
+
+        // properly positioned
+        foreach (var line in welcomeMessage.Split('\n'))
+        {
+            Console.SetCursorPosition(startX, startY++);
+            ConsoleRGB.WriteLine(line, ConsoleColor.DarkGray);
+        }
+
+        Console.ResetColor();  // Reset the console color
     }
+
 
     private static void UpdateCommandHistory(string command)
     {
@@ -84,12 +110,13 @@ public class Program
 
     static void RegisterCommands()
     {
-        chessCommandHandler.RegisterCommand("start", args =>
+        chessCommandHandler.RegisterCommand("restart", args =>
         {
+            
             chessBoard.ResetGame();
             chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
             return true;
-        }, "start - Starts or restarts a new game of chess.");
+        }, "restart - Restarts a new game of chess.");
 
         chessCommandHandler.RegisterCommand("credits", args =>
         {
@@ -101,7 +128,7 @@ public class Program
     private static void RenderCommandHistoryAtBottom()
     {
         int historyStartLine = Console.WindowHeight - commandHistory.Count - 2;
-        Console.SetCursorPosition(0, historyStartLine - 1); // Position for "History:" label
+        Console.SetCursorPosition(0, historyStartLine - 1); // label pos
         Console.WriteLine("History:");
 
         foreach (string cmd in commandHistory)
@@ -110,131 +137,13 @@ public class Program
         }
     }
 
-    public static void DisplayCredits()
-    {
-        Console.Clear();
-
-        // Display ASCII Art Logo
-        Console.WriteLine(@" 
-            _______ _     _  _______ _______ _______  ______ _______ _______
-            |       |     | |______    |    |______ |_____/ |______ |______
-            |_____  |_____| ______|    |    |______ |    \_ |______ ______|
-        ");
-
-        // Display credits information
-        Console.WriteLine("\n\nDeveloped by: Your Name");
-        Console.WriteLine("Graphics and Engine: Your Name");
-        Console.WriteLine("Sound Design: Your Name");
-        Console.WriteLine("Special Thanks: Your Team, Mentors, etc.");
-
-        // Prompt to go back to the game
-        Console.WriteLine("\n\nPress Enter to go back to the game...");
-
-        // Wait for the user to press enter to continue
-        Console.ReadLine();
-
-        // Re-render the chess board to continue the game
-        Console.Clear();
-        RenderWelcomeMessage();
-        RenderGame();
-    }
-
-    public static void AnimateCredits()
-    {
-        Console.Clear();
-
-        string[] creditsLines = {
-        "Developed by: Your Name",
-        "Graphics and Engine: Your Name",
-        "Sound Design: Your Name",
-        "Special Thanks: Your Team, Mentors, etc."
-    };
-
-        int startingLine = Console.WindowHeight - 1; // Start outside the visible window
-        int targetLine = 5; // Target line to stop the animation
-
-        foreach (string line in creditsLines)
-        {
-            for (int currentLine = startingLine; currentLine > targetLine; currentLine--)
-            {
-                Console.Clear();
-                Console.SetCursorPosition(0, currentLine);
-                Console.WriteLine(line);
-                Thread.Sleep(250); // Delay in milliseconds
-            }
-            targetLine++; // Update target line for the next text
-        }
-
-        // Hold the final credits screen
-        Console.SetCursorPosition(0, targetLine + creditsLines.Length + 2);
-        Console.WriteLine("\nPress Enter to go back to the game...");
-        Console.ReadLine();
-    }
-
-    public static void AnimateFrames()
-    {
-        List<string> frames = new List<string>
-    {
-        @"
-         _______ 
-        |  ___  |
-        | |   | |
-        | |___| |
-        |_______|
-        ",
-        @"
-         _______ 
-        |       |
-        |       |
-        |       |
-        |_______|
-        ",
-        @"
-         _______ 
-        |       |
-        |       |
-        |       |
-         \_____/
-        "
-    };
-
-        Console.CursorVisible = false;
-        bool continueAnimation = true;
-
-        ConsoleKeyInfo keyInfo;
-        while (continueAnimation)
-        {
-            foreach (var frame in frames)
-            {
-                if (Console.KeyAvailable)
-                {
-                    keyInfo = Console.ReadKey(true);
-                    if (keyInfo.Key == ConsoleKey.Enter)
-                    {
-                        continueAnimation = false;
-                        break;
-                    }
-                }
-
-                Console.Clear();
-                Console.SetCursorPosition(0, 0);
-                Console.WriteLine(frame);
-                Thread.Sleep(500); // Adjust the speed of frame change as necessary
-            }
-        }
-
-        Console.CursorVisible = true;
-        Console.Clear();
-        Program.RenderGame(); // Assuming this will redraw your game or main screen
-    }
-
     public static void CurtainAnimation()
     {
         Console.CursorVisible = false;
         int width = Console.WindowWidth;
         int height = Console.WindowHeight;
         Random rand = new Random();
-        string chars = "#@$*%&";  // Characters to use for the curtain
+        string chars = "_";  // Characters to use for the curtain
         double phase = 0.0;       // Phase to create the wave animation
         int curtainSpeed = 10; // open & close speed (less is faster)
 
@@ -248,7 +157,7 @@ public class Program
                 int waveOffset = (int)(Math.Sin(i * 0.3 + phase) * 5);  // 0.3 for frequency, 5 for amplitude
 
                 int leftEdge = Math.Max(0, size + waveOffset);  // Ensure it doesn't go negative
-                int rightEdge = Math.Min(width, width - size + waveOffset);  // Ensure it doesn't exceed screen width
+                int rightEdge = Math.Min(width, width - size + waveOffset);  // Ensures it doesn't exceed screen width
 
                 for (int j = 0; j < leftEdge; j++)
                 {
@@ -289,7 +198,7 @@ public class Program
         StartMatrixEffect(width, height, 5);
         Console.Clear();
 
-        ShowLogoAnimation(width, height);  // Show animated logo for 4 seconds
+        ShowLogoAnimation(width, height); 
 
         ShowAsciiArt(width, height);
 
@@ -298,7 +207,6 @@ public class Program
         Console.Clear();
         RenderWelcomeMessage();
         RenderGame();
-
     }
 
     private static void ShowAsciiArt(int width, int height)
@@ -335,7 +243,7 @@ public class Program
             int cursorY = topCenterY + i;
             if (cursorY >= 0 && cursorY < height)
             {
-                if (asciiLines[i].Contains("Special Thanks to"))
+                if (asciiLines[i].Contains("Special Thanks"))
                     Console.ForegroundColor = ConsoleColor.Blue;
                 else if (asciiLines[i].Contains("For his"))
                     Console.ForegroundColor = ConsoleColor.Green;
@@ -381,7 +289,7 @@ public class Program
                 if (xPos + randomWord.Length > width)
                     xPos = width - randomWord.Length;
 
-                if (randomWord == "Dor" || randomWord == "Dor-Ben-Dor")
+                if (randomWord == "D0r" || randomWord == "Dor-Ben-Dor")
                 {
                     Console.ForegroundColor = ConsoleColor.White;
                 }
@@ -451,7 +359,7 @@ public class Program
         {
             Console.Clear();
             Console.ForegroundColor = colors[i];
-            int verticalStart = Math.Max(0, (height - lines.Length) / 2); // This might need adjusting...
+            int verticalStart = Math.Max(0, (height - lines.Length) / 2); // This might need adjusting... NOT to cause a crash
 
 
             for (int j = 0; j < lines.Length; j++)

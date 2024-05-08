@@ -2,7 +2,7 @@
 
 namespace EpicTileEngine
 {
-    internal class Actor
+    public class Actor
     {
         public int Id { get; protected set; }
         public string Name { get; protected set; }

@@ -84,7 +84,6 @@ namespace EpicTileEngine
             }
         }
 
-
         public virtual Tile GetTile(int x, int y)
         {
             try
@@ -100,6 +99,18 @@ namespace EpicTileEngine
                 return null;
             }
         }
+
+        public IEnumerable<ChessPiece> GetAllPiecesByActorId(int actorId)
+        {
+            foreach (var tile in GetAllTiles())
+            {
+                if (tile.Occupant is ChessPiece piece && piece.ActorId == actorId)
+                {
+                    yield return piece;
+                }
+            }
+        }
+
 
         public bool IsTileOccupied(Position pos)
         {
@@ -145,11 +156,10 @@ namespace EpicTileEngine
         /// <returns>A collection of tiles in spiral order, starting from the specified position.</returns>
         public IEnumerable<Tile> GetTilesInSpiralOrder(Position startPosition)
         {
-            // Initialize coordinates to the starting position
             int x = startPosition.X;
             int y = startPosition.Y;
 
-            // Set the initial direction to upward (dx = 0, dy = -1)
+            // Set initial direction upward (dx = 0, dy = -1)
             int dx = 0;
             int dy = -1;
 

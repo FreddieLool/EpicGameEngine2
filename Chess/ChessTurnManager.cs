@@ -7,24 +7,27 @@ using System.Threading.Tasks;
 
 namespace EpicGameEngine
 {
-    internal class ChessTurnManager
+    public class ChessTurnManager
     {
-        Actor whitePlayer;
-        Actor blackPlayer;
-        public ChessTurnManager(Actor whitePlayer,Actor blackPlayer) { 
+        public Actor blackPlayer;
+        public Actor whitePlayer;
+        public ChessTurnManager(Actor whitePlayer,Actor blackPlayer)
+        { 
             this.whitePlayer = whitePlayer; 
             this.blackPlayer = blackPlayer;
             whitePlayer.ChangePlayingStatus(true);
         }
 
-      public bool IsPieceBelongsToPlayer(Actor currentPlayer,TileObject currentPiece)
+        public bool IsPieceBelongsToPlayer(Actor currentPlayer,TileObject currentPiece)
         {
-            if(currentPlayer == null) return false;
+            if (currentPlayer == null) return false;
+
             if (currentPlayer.IsPlaying)
             {
                 //Picked The CorrectObject
                 if (currentPlayer.Id == currentPiece.ActorId) return true;
-                else return false;
+                else 
+                return false;
             }
             else
             {
@@ -32,7 +35,8 @@ namespace EpicGameEngine
                 //PlayerIsNotPlaying
             }
         }
-        public Actor GetWhoPlaying()
+
+        public Actor GetPlayingActor()
         {
             if (whitePlayer.IsPlaying)
             {
@@ -43,6 +47,7 @@ namespace EpicGameEngine
                 return blackPlayer;
             }
         }
+
         public void ChangeTurns()
         {
             if (whitePlayer.IsPlaying)
@@ -56,7 +61,5 @@ namespace EpicGameEngine
                 blackPlayer.ChangePlayingStatus(false);
             }
         }
-        
     }
-
 }

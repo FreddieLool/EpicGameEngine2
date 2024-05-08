@@ -1,10 +1,20 @@
-﻿using EpicTileEngine;
+﻿using EpicGameEngine;
+using EpicTileEngine;
 using System.Diagnostics;
 
 public class MovementManager : TileActionManager
 {
-    public MovementManager()
+    // store state of last move, cpature, checkmate, ...
+    public bool LastMoveWasCapture = false;
+    public bool LastMoveWasCheckmate = false;
+    public ChessPiece LastCapturedPiece = null;
+    public Position LastCapturedPiecePosition;
+
+    private ChessTurnManager chessTurnManager;
+
+    public MovementManager(ChessTurnManager chessTurnManager)
     {
+        this.chessTurnManager = chessTurnManager;
         ValidateMove = this.ValidateMoveMethod;
         OnInteract = this.HandleInteractionMethod;
         OnMove = this.AfterMoveActionsMethod;
@@ -18,8 +28,34 @@ public class MovementManager : TileActionManager
 
     private bool ValidateMoveMethod(TileObject mover, Position targetPosition, Tilemap board)
     {
-        Debug.WriteLine($"Validating move for {((ChessPiece)mover).Name} to {targetPosition}");
-        return IsValidMove(targetPosition, (ChessPiece)mover, board);
+        ChessPiece piece = mover as ChessPiece;
+        if (IsValidMove(targetPosition, piece, board))
+        {
+            // Temporarily move to check for threats against the king
+            Tile originalTile = piece.CurrentTile;
+            Tile targetTile = board.GetTile(targetPosition);
+            TileObject originalOccupant = targetTile.Occupant;
+
+            // Perform temporary move
+            targetTile.SetOccupant(mover);
+            originalTile.RemoveOccupant();
+
+            // Check for threats against the mover's king
+            bool isMoveLegal = !IsKingInCheck(piece.ActorId, board);
+
+            // Undo the temporary move
+            originalTile.SetOccupant(mover);
+            targetTile.SetOccupant(originalOccupant);
+
+            return isMoveLegal;
+        }
+        return false;
+    }
+
+    private bool IsKingInCheck(int actorId, Tilemap board)
+    {
+        ChessPiece king = FindKing(board, actorId);
+        return CheckForThreats(king, board);
     }
 
     private bool HandleInteractionMethod(TileObject mover, TileObject occupant, Tilemap board)
@@ -42,18 +78,23 @@ public class MovementManager : TileActionManager
                 }
 
                 // Capture logic
-                board[targetPiece.CurrentTile.Position].RemoveOccupant(); // Assume capture occurs here
+                board[targetPiece.CurrentTile.Position].RemoveOccupant();
+                LastCapturedPiece = targetPiece; // Update the last captured piece
+                LastCapturedPiecePosition = targetPiece.CurrentTile.Position;
+                LastMoveWasCapture = true; // Indicate that the last move was a capture
                 return true; // Capture is allowed
             }
         }
         return false; // No interaction possible (same player's piece)
     }
+
     private void AfterMoveActions(ChessPiece piece, Tile newTile)
     {
         // Check for pawn promotion
         if (piece.Type == PieceType.Pawn && (newTile.Position.Y == 0 || newTile.Position.Y == 7))
         {
             piece.Promote(PieceType.Queen);
+            piece.Symbol = 'Q';
         }
     }
 
@@ -85,16 +126,14 @@ public class MovementManager : TileActionManager
         return !kingInCheck;
     }
 
-
-
-    private bool CheckForThreats(ChessPiece king, Tilemap board)
+    public bool CheckForThreats(ChessPiece king, Tilemap board)
     {
         Position kingPosition = king.CurrentTile.Position;
         foreach (var tile in board.GetAllTiles())
         {
             if (tile.Occupant is ChessPiece piece && piece.ActorId != king.ActorId)
             {
-                // Assume GetValidMoves is designed to get moves without checking king's check status
+                // GetValidMoves is designed to get moves without checking king's check status
                 var threats = GetValidMoves(piece, board);
                 if (threats.Contains(kingPosition))
                 {
@@ -105,8 +144,26 @@ public class MovementManager : TileActionManager
         return false;
     }
 
-
-
+    public bool CheckForCheckmate(int opponentActorId, Tilemap chessBoard)
+    {
+        bool isKingInCheck = false;
+        foreach (var piece in chessBoard.GetAllPiecesByActorId(opponentActorId))
+        {
+            var validMoves = GetValidMoves(piece, chessBoard);
+            foreach (var move in validMoves)
+            {
+                if (TryMove(piece, move, chessBoard))
+                {
+                    return false;  // Found a legal move that avoids check
+                }
+            }
+            if (piece.Type == PieceType.King)
+            {
+                isKingInCheck = CheckForThreats(piece, chessBoard);  // Check if the king is in check
+            }
+        }
+        return isKingInCheck;  // If king is in check and no moves prevent check, it's checkmate
+    }
 
     public bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
     {
@@ -118,20 +175,35 @@ public class MovementManager : TileActionManager
 
         if (targetTile.Occupant != null)
         {
-            if (!OnInteract(mover, targetTile.Occupant, board)) // Ensure you pass the board
-                return false; // Interaction check failed
+            if (!OnInteract(mover, targetTile.Occupant, board))  // Interaction check
+                return false;  // Interaction failed
         }
 
         targetTile.SetOccupant(mover);
         currentTile.RemoveOccupant();
 
-        OnMove(mover, targetTile); // Trigger any move-related actions
+        OnMove(mover, targetTile);  // Trigger any move-related actions
+
+        // Get the opponent ID using the chessTurnManager instance
+        Actor currentPlayer = chessTurnManager.GetPlayingActor();
+        Actor opponentPlayer = currentPlayer == chessTurnManager.whitePlayer ? chessTurnManager.blackPlayer : chessTurnManager.whitePlayer;
+
+        if (IsKingInCheck(opponentPlayer.Id, board))
+        {
+            if (CheckForCheckmate(opponentPlayer.Id, board))
+            {
+                CommandHandler.DisplayNotificationMessage($"{currentPlayer.Name} checkmates opponent!");
+            }
+            else
+            {
+                CommandHandler.DisplayNotificationMessage($"{currentPlayer.Name} checks opponent!");
+            }
+        }
 
         return true;
     }
 
-
-    private ChessPiece FindKing(Tilemap board, int actorId)
+    public ChessPiece FindKing(Tilemap board, int actorId)
     {
         foreach (var tile in board.GetAllTiles())
         {
@@ -200,7 +272,6 @@ public class MovementManager : TileActionManager
             }
         }
     }
-
 
     private IEnumerable<Position> GetRookMoves(ChessPiece piece, Tilemap board)
     {
@@ -283,9 +354,7 @@ public class MovementManager : TileActionManager
                 }
             }
         }
-
         return validMoves;
-
     }
 
     private IEnumerable<Position> GetBishopMoves(ChessPiece piece, Tilemap board)

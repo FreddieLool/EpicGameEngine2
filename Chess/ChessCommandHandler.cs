@@ -1,5 +1,6 @@
 ﻿using EpicGameEngine;
 using EpicTileEngine;
+using System.ComponentModel;
 using System.Diagnostics;
 
 internal class ChessCommandHandler : CommandHandler
@@ -11,11 +12,12 @@ internal class ChessCommandHandler : CommandHandler
     private List<Position> highlightedPositions = new List<Position>();
     public List<Position> HighlightedPositions => highlightedPositions;
 
-    public ChessCommandHandler(Tilemap chessBoard, MovementManager movementManager,ChessTurnManager chessTurn)
+
+    public ChessCommandHandler(Tilemap chessBoard, MovementManager movementManager, ChessTurnManager turnManager)
     {
         this.chessBoard = chessBoard;
         this.movementManager = movementManager;
-        this.chessTurnManager = chessTurn;
+        this.chessTurnManager = turnManager;
 
         RegisterChessCommands();
     }
@@ -42,10 +44,10 @@ internal class ChessCommandHandler : CommandHandler
 
             if (tile != null && tile.Occupant != null)
             {
-                Actor currentlyPlaying = chessTurnManager.GetWhoPlaying();
+                Actor currentlyPlaying = chessTurnManager.GetPlayingActor();
                 if (!chessTurnManager.IsPieceBelongsToPlayer(currentlyPlaying, tile.Occupant))
                 {
-                    DisplayNotificationMessage($"You can't move This Piece");
+                    DisplayNotificationMessage($"You can't select this piece");
                     return false;
                 }
                 selectedPiece = tile.Occupant;
@@ -95,10 +97,10 @@ internal class ChessCommandHandler : CommandHandler
                 Trace.WriteLine("No piece selected. Use 'select' command first.");
                 return false;
             }
-            Actor currentlyPlaying = chessTurnManager.GetWhoPlaying();
+            Actor currentlyPlaying = chessTurnManager.GetPlayingActor();
             if (!chessTurnManager.IsPieceBelongsToPlayer(currentlyPlaying,selectedPiece))
             {
-                DisplayNotificationMessage($"You can't move This Piece");
+                DisplayNotificationMessage($"You can't move this piece", ConsoleColor.Yellow);
                 return false;
             }
 
@@ -115,32 +117,89 @@ internal class ChessCommandHandler : CommandHandler
                     bool result = movementManager.TryMove(selectedPiece, to, chessBoard);
                     if (result)
                     {
-                        // Update the highlighted positions for the new location of the piece
-                        selectedPiece = chessBoard.GetTile(to).Occupant; // Update the selected piece reference
-                        highlightedPositions = movementManager.GetValidMoves((ChessPiece)selectedPiece, chessBoard).ToList();
-                        Trace.WriteLine($"Move successful to {to}. Valid moves updated.");
+                        highlightedPositions.Clear();
+                        selectedPiece = null;
+                        var currentPlayer = chessTurnManager.GetPlayingActor();
+
+                        // Check for check after move
+                        if (movementManager.CheckForThreats(movementManager.FindKing(chessBoard, currentPlayer.Id), chessBoard))
+                        {
+                            movementManager.LastMoveWasCheckmate = true;
+
+                            // Check for checkmate
+                            if (movementManager.CheckForCheckmate(currentPlayer.Id, chessBoard))
+                            {
+                                movementManager.LastMoveWasCheckmate = true;
+                                DisplayGameState();
+                                return true;
+                            }
+                        }
                         chessTurnManager.ChangeTurns();
+
                         ClearErrorMessage();
+                        DisplayGameState();
                     }
                     else
                     {
-                        Trace.WriteLine("Move failed, keeping current selection and valid moves.");
                         DisplayNotificationMessage("Move failed.", ConsoleColor.DarkYellow);
                     }
                     
                     return result;
                 }
-
-                Trace.WriteLine("Selected piece cannot move to the specified position.");
                 DisplayNotificationMessage("Selected piece cannot move to the specified position.", ConsoleColor.DarkYellow);
                 return false;
             }
 
             DisplayNotificationMessage("Invalid move syntax. Usage: move [to]");
-            Trace.WriteLine("Invalid move syntax. Usage: move [to]");
             return false;
         }, "move [position] - Move the currently selected piece to the specified position.");
     }
+
+    public void DisplayGameState()
+    {
+        int stateLine = 2; // number for the game state
+        Console.SetCursorPosition(0, stateLine);
+        Console.Write(new string(' ', Console.WindowWidth));
+
+        Actor currentPlayer = chessTurnManager.GetPlayingActor();
+        string stateMessage = $"State: {currentPlayer.Name}'s turn";
+
+        Console.SetCursorPosition(0, stateLine);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("State: ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine($"{currentPlayer.Name}'s turn");
+
+        if (movementManager.LastMoveWasCapture)
+        {
+            string pieceName = StripPrefixFromName(movementManager.LastCapturedPiece.Name);
+            string positionNotation = ConvertPositionToNotation(movementManager.LastCapturedPiecePosition);
+
+            // "captures" message parts
+            Console.SetCursorPosition(0, stateLine + 1);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"{currentPlayer.Name} captures ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(pieceName);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(" at ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(positionNotation);
+        }
+
+        if (movementManager.LastMoveWasCheckmate)
+        {
+            Console.SetCursorPosition(0, stateLine + 2);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{currentPlayer.Name} checkmates opponent!");
+        }
+
+        Console.ResetColor();
+    }
+
 
     private Position ConvertNotationToPosition(string notation)
     {
@@ -158,9 +217,23 @@ internal class ChessCommandHandler : CommandHandler
         }
     }
 
+    private string ConvertPositionToNotation(Position position)
+    {
+        char file = (char)('a' + position.X);
+        int rank = 8 - position.Y;
+        return $"{file}{rank}";
+    }
+
+    private string StripPrefixFromName(string fullName)
+    {
+        // prefix is separated by a space
+        int lastSpaceIndex = fullName.LastIndexOf(' ');
+        return lastSpaceIndex == -1 ? fullName : fullName.Substring(lastSpaceIndex + 1);
+    }
+
     public void ResetSelectionAndState()
     {
-        selectedPiece = null; // Clear the selected piece
-        highlightedPositions.Clear(); // Clear any highlighted positions
+        selectedPiece = null; 
+        highlightedPositions.Clear();
     }
 }

@@ -77,7 +77,7 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         for (int y = 0; y < tilemap.Height; y++)
         {
             Console.SetCursorPosition(startX - 2, startY + y); // Move cursor left from the start of the row
-            ConsoleRGB.Write(8 - y, ConsoleColor.DarkGray);  // Chess rows go from 8 at the top to 1 at the bottom
+            ConsoleRGB.Write(8 - y, ConsoleColor.DarkGray);
         }
 
         // Render the board
@@ -118,7 +118,7 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         Console.SetCursorPosition(startX, startY + tilemap.Height);
         for (int x = 0; x < tilemap.Width; x++)
         {
-            if (x > 0) Console.Write(" "); // adjust spacing
+            if (x > 0) Console.Write(" ");
             ConsoleRGB.Write(" " + (char)('A' + x), ConsoleColor.DarkGray);  // A to H
         }
     }

@@ -33,8 +33,6 @@ public class ChessPiece : TileObject
         }
     }
 
-
-
     public void Promote(PieceType newType)
     {
         if (Type == PieceType.Pawn)
@@ -45,7 +43,7 @@ public class ChessPiece : TileObject
 
     public override object Clone()
     {
-        ChessPiece clone = new ChessPiece(this.Type, this.Color, this.ActorId)
+        ChessPiece clone = new(this.Type, this.Color, this.ActorId)
         {
             CurrentTile = this.CurrentTile != null ? (Tile)this.CurrentTile.Clone() : null
         };

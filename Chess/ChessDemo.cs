@@ -51,14 +51,16 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         // Reinitialize da chess pieces
         InitializeChessPieces();
 
-        // Trigger the event
+        // Trigger the event (reset selection, state, turns)
         OnGameReset?.Invoke();
 
-        CommandHandler.DisplayNotificationMessage("Game has been restarted.", ConsoleColor.Blue);
+        CommandHandler.DisplayNotification("Game has been restarted.", ConsoleColor.Blue);
     }
 
     private void InitializeChessPieces()
     {
+        // Normal chess setup 
+
         // Black pieces
         PlaceMajorPieces(0, Color.Black, blackPlayer);
         PlacePawns(1, Color.Black, blackPlayer);
@@ -66,81 +68,6 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         // White pieces
         PlaceMajorPieces(Height - 1, Color.White, whitePlayer);  // Should be row 7 if Height is 8
         PlacePawns(Height - 2, Color.White, whitePlayer);       // Should be row 6 if Height is 8
-
-    }
-
-    public void Render(Tilemap tilemap, List<Position> highlightedPositions)
-    {
-        int boardWidth = tilemap.Width * 3;  // Each tile is 3 chars wide
-        int boardHeight = tilemap.Height;
-
-        int consoleWidth = Console.WindowWidth;
-        int consoleHeight = Console.WindowHeight;
-
-        // Center the board, adjusting startX for row numbers
-        int startX = (consoleWidth - boardWidth) / 2 + 4; // Added 4 spaces for row numbers
-        int startY = (consoleHeight - boardHeight) / 2;
-
-        // Ensures startY is non-negative
-        startY = Math.Max(startY, 0);
-
-        // Render the row numbers
-        for (int y = 0; y < tilemap.Height; y++)
-        {
-            Console.SetCursorPosition(startX - 2, startY + y); // Move cursor left from the start of the row
-            ConsoleRGB.Write(8 - y, ConsoleColor.DarkGray);
-        }
-
-        // Render the board
-        for (int y = 0; y < tilemap.Height; y++)
-        {
-            Console.SetCursorPosition(startX, startY + y);
-            for (int x = 0; x < tilemap.Width; x++)
-            {
-                Position currentPosition = new Position(x, y);
-                ConsoleColor backgroundColor = highlightedPositions.Contains(currentPosition) ? ConsoleColor.Green : Console.BackgroundColor;
-
-                var tile = tilemap[currentPosition];
-                if (tile.Occupant != null)
-                {
-                    ConsoleColor pieceColor = tile.Occupant.ActorId == 1 ? ConsoleColor.Yellow : ConsoleColor.Gray;
-                    backgroundColor = highlightedPositions.Contains(currentPosition) ? ConsoleColor.Green : backgroundColor;
-                    Console.Write($"[");
-                    Console.BackgroundColor = backgroundColor;
-                    Console.ForegroundColor = pieceColor;
-                    Console.Write($"{tile.Occupant.Symbol}");
-                    Console.ResetColor();
-                    Console.Write($"]");
-                }
-                else
-                {
-                    Console.ForegroundColor = backgroundColor;
-                    Console.Write("[");
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("-");
-                    Console.ForegroundColor = backgroundColor;
-                    Console.Write("]");
-                    Console.ResetColor();
-                }
-
-                if (tile.IsHighlighted)
-                {
-                    Console.BackgroundColor = ConsoleColor.Green;  // Highlight color
-                }
-                else
-                {
-                    Console.BackgroundColor = ConsoleColor.Black;  // Default background color
-                }
-            }
-        }
-
-        // Render the column labels
-        Console.SetCursorPosition(startX, startY + tilemap.Height);
-        for (int x = 0; x < tilemap.Width; x++)
-        {
-            if (x > 0) Console.Write(" ");
-            ConsoleRGB.Write(" " + (char)('A' + x), ConsoleColor.DarkGray);  // A to H
-        }
     }
 
     private void PlaceMajorPieces(int row, Color color, Actor player)
@@ -150,17 +77,17 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
             throw new ArgumentOutOfRangeException(nameof(row), "Row index is out of the bounds of the Tilemap.");
         }
 
-        ChessPiece[] pieces = new[]
-        {
-        new ChessPiece(PieceType.Rook, color, player.Id),
-        new ChessPiece(PieceType.Knight, color, player.Id),
-        new ChessPiece(PieceType.Bishop, color, player.Id),
-        new ChessPiece(PieceType.Queen, color, player.Id),
-        new ChessPiece(PieceType.King, color, player.Id),
-        new ChessPiece(PieceType.Bishop, color, player.Id),
-        new ChessPiece(PieceType.Knight, color, player.Id),
-        new ChessPiece(PieceType.Rook, color, player.Id)
-        };
+        ChessPiece[] pieces =
+        [
+            new ChessPiece(PieceType.Rook, color, player.Id),
+            new ChessPiece(PieceType.Knight, color, player.Id),
+            new ChessPiece(PieceType.Bishop, color, player.Id),
+            new ChessPiece(PieceType.Queen, color, player.Id),
+            new ChessPiece(PieceType.King, color, player.Id),
+            new ChessPiece(PieceType.Bishop, color, player.Id),
+            new ChessPiece(PieceType.Knight, color, player.Id),
+            new ChessPiece(PieceType.Rook, color, player.Id)
+        ];
 
         for (int i = 0; i < pieces.Length; i++)
         {
@@ -173,7 +100,6 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         }
     }
 
-
     private void PlacePawns(int row, Color color, Actor player)
     {
         // Place pawns and assign them to the actor
@@ -183,5 +109,98 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
             this[new Position(col, row)].SetOccupant(pawn);
             player.AddTileObject(pawn);
         }
+    }
+
+    private void PlacePiece(ChessPiece piece, string notation)
+    {
+        Position position = ConvertNotationToPosition(notation);
+        this[position].SetOccupant(piece);
+        if (piece.Color == Color.White)
+        {
+            whitePlayer.AddTileObject(piece);
+        }
+        else
+        {
+            blackPlayer.AddTileObject(piece);
+        }
+    }
+
+    public void SetupCustomFormation(string formationName)
+    {
+        switch (formationName.ToLower())
+        {
+            case "white strat":
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c5");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c4");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "b4");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "d3");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "b2");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c2");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "e2");
+                PlacePiece(new ChessPiece(PieceType.Bishop, Color.Black, blackPlayer.Id), "a3");
+                PlacePiece(new ChessPiece(PieceType.Bishop, Color.Black, blackPlayer.Id), "d1");
+                PlacePiece(new ChessPiece(PieceType.Knight, Color.Black, blackPlayer.Id), "b1");
+                PlacePiece(new ChessPiece(PieceType.Knight, Color.Black, blackPlayer.Id), "e1");
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "c1");
+                PlacePiece(new ChessPiece(PieceType.Queen, Color.Black, blackPlayer.Id), "a2");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.Black, blackPlayer.Id), "b3");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.Black, blackPlayer.Id), "d2");
+
+                PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "f2");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.White, whitePlayer.Id), "h2");
+                break;
+
+
+            case "anastasia's mate":
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h7");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "g7");
+                PlacePiece(new ChessPiece(PieceType.Knight, Color.White, whitePlayer.Id), "e7");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "e3");
+                PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "g1");
+                break;
+
+            case "smothered mate":
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
+                break;
+
+            case "back rank mate":
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
+                break;
+
+            case "scholar's mate":
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
+                break;
+
+            case "fool's mate":
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
+                break;
+
+            default:
+                CommandHandler.DisplayNotification("Unknown formation name.", ConsoleColor.Red);
+                break;
+        }
+    }
+
+    public Position ConvertNotationToPosition(string notation)
+    {
+        try
+        {
+            int x = notation[0] - 'a';
+            int y = 8 - (notation[1] - '0');
+            return new Position(x, y);
+        }
+        catch (IndexOutOfRangeException)
+        {
+            // invalid notation
+            CommandHandler.DisplayNotification("Invalid position notation. Please enter a valid position.", ConsoleColor.Red);
+            return new Position(0, 0); // Default position?
+        }
+    }
+
+    public string ConvertPositionToNotation(Position position)
+    {
+        char file = (char)('a' + position.X);
+        int rank = 8 - position.Y;
+        return $"{file}{rank}";
     }
 }

@@ -2,18 +2,26 @@
 
 namespace EpicTileEngine
 {
-    public class TileActionManager
+    /// <summary>
+    /// Manages actions related to tiles and tile objects, such as movement, interaction, and triggering events.
+    /// </summary>
+    public abstract class TileActionManager
     {
-        // Delegate for validating movement. Returns true if the move is valid.
+        /// <summary>
+        /// Delegate for validating movement. Returns true if the move is valid.
+        /// </summary>
         public Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
 
-        // Delegate for handling interactions between two tile objects (e.g., combat).
-        // Returns true if the moving object can move into the tile with another object.
+        /// <summary>
+        /// Delegate for handling interactions between two tile objects (e.g., combat).
+        /// Returns true if the moving object can move into the tile with another object.
+        /// </summary>
         public Func<TileObject, TileObject, Tilemap, bool> OnInteract { get; set; }
 
-        // Action to perform after a move is executed, such as updating game state or triggering events.
+        /// <summary>
+        /// Action to perform after a move is executed, such as updating game state or triggering events.
+        /// </summary>
         public Action<TileObject, Tile> OnMove { get; set; }
-
 
         /// <summary>
         /// Attempts to move a TileObject to a new position within the given Tilemap.
@@ -26,26 +34,29 @@ namespace EpicTileEngine
         {
             Trace.WriteLine($"Attempt to move from {mover.CurrentTile.Position} to {targetPosition}");
 
+            // Check if the target position is within the tilemap boundaries
             if (!board.IsPositionValid(targetPosition))
             {
                 Trace.WriteLine("Move out of bounds.");
                 return false;
             }
 
+            // Retrieve the tile at the target position
             Tile targetTile = board.GetTile(targetPosition);
 
-            // Check if the target tile is passable and not occupied by a friendly piece
+            // Ensure the tile is passable and not occupied by a friendly unit
             if (!targetTile.IsPassable || (targetTile.Occupant != null && targetTile.Occupant.ActorId == mover.ActorId))
             {
                 Trace.WriteLine("Move blocked or occupied by a friendly piece.");
                 return false;
             }
 
-            // Additional debug information:
+            // Additional debug information
             Trace.WriteLine($"Target tile passable: {targetTile.IsPassable}, Occupied by self: {targetTile.Occupant?.ActorId == mover.ActorId}");
 
+            // Calculate the movement vector and distance
             Position currentPos = mover.CurrentTile.Position;
-            Position moveVector = new Position(targetPosition.X - currentPos.X, targetPosition.Y - currentPos.Y);
+            Position moveVector = new(targetPosition.X - currentPos.X, targetPosition.Y - currentPos.Y);
             int moveDistance = Math.Max(Math.Abs(moveVector.X), Math.Abs(moveVector.Y));
 
             // Check if the move is allowed based on the mover's capabilities
@@ -53,15 +64,6 @@ namespace EpicTileEngine
                 moveVector.X == capability.direction.X * moveDistance &&
                 moveVector.Y == capability.direction.Y * moveDistance &&
                 moveDistance <= capability.maxSteps);
-
-/*            foreach (var (direction, maxSteps) in mover.MovementCapabilities)
-            {
-                if (moveVector.X == direction.X * moveDistance && moveVector.Y == direction.Y * moveDistance && moveDistance <= maxSteps)
-                {
-                    isMoveAllowed = true;
-                    break;
-                }
-            }*/
 
             Trace.WriteLine($"Is move allowed: {isMoveAllowed}");
             if (!isMoveAllowed)
@@ -74,28 +76,31 @@ namespace EpicTileEngine
                 return false;
             }
 
-
             // Determine if this is a passing movement or a landing movement
             bool isPassing = DeterminePassingLogic(mover, targetTile);
 
             if (isPassing)
             {
-                targetTile.TriggerOnPass(mover); // Trigger pass event
+                // Trigger pass event
+                targetTile.TriggerOnPass(mover);
             }
             else
             {
                 // Handle landing logic
                 if (targetTile.Occupant != null)
                 {
+                    // Handle interaction with an occupant in the target tile
                     bool interactionResult = OnInteract.Invoke(mover, targetTile.Occupant, board);
                     if (!interactionResult) return false; // Interaction can block movement
                 }
 
+                // Move to the new tile
                 mover.CurrentTile.RemoveOccupant(); // Clear current tile
                 targetTile.SetOccupant(mover);      // Set new occupant
                 mover.CurrentTile = targetTile;     // Update current tile reference
 
-                OnMove?.Invoke(mover, targetTile);  // Trigger move event
+                // Trigger move event
+                OnMove?.Invoke(mover, targetTile);
             }
 
             return true;
@@ -105,19 +110,18 @@ namespace EpicTileEngine
         /// Determines if a move is considered a passing move based on game logic.
         /// </summary>
         /// <param name="mover">The TileObject attempting to move.</param>
-        /// <param name="targetTile">The destination Tile of the move.</param>
+        /// <param="targetTile">The destination Tile of the move.</param>
         /// <returns>True if the move should be treated as a pass; otherwise, false.</returns>
         protected bool DeterminePassingLogic(TileObject mover, Tile targetTile)
         {
-            // Example logic: Check if the mover has a specific capability (canFly, ..)
-            // and the target tile is not a landing tile type but a passable type (clouds, water, ..)
+            // Example logic: Check if the mover has a specific capability (e.g., canFly)
+            // and the target tile is a passable but not landing type (e.g., clouds or water)
             if (mover.CanFly && targetTile.Type == TileType.Cloud)
             {
                 return true; // The mover passes over the tile
             }
 
-            // More complex logic might involve checking movement distance, mover state, or other properties
-            // Example: Check if the mover is performing a dash that allows bypassing certain tile types
+            // Additional logic: Check if the mover is dashing to bypass certain tiles (e.g., water)
             if (mover.IsDashing && targetTile.Type == TileType.Water)
             {
                 return true; // The mover passes over water without stopping
@@ -126,7 +130,5 @@ namespace EpicTileEngine
             // Default to false if none of the special conditions for passing are met
             return false;
         }
-
-
     }
 }

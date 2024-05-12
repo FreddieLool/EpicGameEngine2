@@ -4,28 +4,28 @@ using EpicTileEngine;
 
 public class Program
 {
-    private static Queue<string> commandHistory = new Queue<string>(10);
-    private static ChessCommandHandler chessCommandHandler;
-    private static ChessDemo chessBoard;
-    private static ChessTurnManager turnManager;
-    private static MovementManager movementManager;
+    private static Queue<string> commandHistory = new(10);
+    private static ChessCommandHandler _chessCommandHandler;
+    private static ChessDemo _chessBoard;
+    private static ChessTurnManager _chessTurnManager;
+    private static MovementManager _movementManager;
+    private static Renderer _renderer;
 
 
     static void Main()
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        chessBoard = new ChessDemo(8, 8);
-        turnManager = new ChessTurnManager(chessBoard.whitePlayer,chessBoard.blackPlayer);
-        movementManager = new MovementManager(turnManager);
-        
-        
-        chessCommandHandler = new ChessCommandHandler(chessBoard, movementManager,turnManager);
+        _chessBoard = new ChessDemo(8, 8);
+        _chessTurnManager = new ChessTurnManager(_chessBoard.whitePlayer, _chessBoard.blackPlayer);
+        _movementManager = new MovementManager(_chessTurnManager);
+        _chessCommandHandler = new ChessCommandHandler(_chessBoard, _movementManager, _chessTurnManager);
+        _renderer = new Renderer();
 
         // sub to OnGameReset
-        chessBoard.OnGameReset += chessCommandHandler.ResetSelectionAndState;
+        _chessBoard.OnGameReset += _movementManager.ResetSelectionAndState;
+        _chessBoard.OnGameReset += _chessTurnManager.ResetTurns;
 
-        RegisterCommands();
         MainLoop();
     }
 
@@ -33,32 +33,87 @@ public class Program
     {
         RenderWelcomeMessage();
         RenderGame();
-        chessCommandHandler.DisplayGameState();  // Initial state display
+        DisplayGameState();  // Initial state display
 
         while (true)
         {
             ClearCurrentCommandLine();
             Console.Write("> ");
-            string command = Console.ReadLine()?.Trim();
+            string? command = Console.ReadLine()?.Trim();
 
-            if (string.Equals(command, "exit", StringComparison.OrdinalIgnoreCase)) break;
-
-            bool isValidCommand = chessCommandHandler.HandleCommand(command);
+            bool isValidCommand = _chessCommandHandler.HandleCommand(command);
             if (isValidCommand)
             {
                 UpdateCommandHistory(command);
                 RenderGame();
             }
 
+            if (string.Equals(command, "exit", StringComparison.OrdinalIgnoreCase)) break;
+
             RenderGame();
-            chessCommandHandler.DisplayGameState(); // refresh every cmd
+            DisplayGameState(); // refresh every cmd
             RenderCommandHistoryAtBottom();
         }
     }
 
     private static void RenderGame()
     {
-        chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
+        // User defined colors
+        _renderer.HighlightedColor = ConsoleColor.Green;
+        _renderer.Actor1PieceColor = ConsoleColor.Yellow;
+        _renderer.Actor2PieceColor = ConsoleColor.Gray;
+        _renderer.BackgroundColor = ConsoleColor.Black;
+        _renderer.SelectedColor = ConsoleColor.Red;
+
+        // Get highlighted positions (valid movements for selected piece)
+        _renderer.HighlightedPositions = _movementManager.HighlightedPositions;
+
+        // Render!
+        _renderer.Render(_chessBoard, _movementManager.SelectedPiece, _movementManager.ShowValidMovementsHighlighted);
+    }
+
+    public static void DisplayGameState()
+    {
+        int stateLine = 2; // number for the game state
+        Console.SetCursorPosition(0, stateLine);
+        Console.Write(new string(' ', Console.WindowWidth));
+
+        Actor currentPlayer = _chessTurnManager.GetPlayingActor();
+
+        Console.SetCursorPosition(0, stateLine);
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("State: ");
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.WriteLine($"{currentPlayer.Name}'s turn");
+
+        if (_movementManager.LastMoveWasCapture)
+        {
+            string pieceName = _chessCommandHandler.StripPrefixFromName(_movementManager.LastCapturedPiece.Name);
+            string positionNotation = _chessBoard.ConvertPositionToNotation(_movementManager.LastCapturedPiecePosition);
+
+            // "captures" message parts
+            Console.SetCursorPosition(0, stateLine + 1);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write($"{currentPlayer.Name} captures ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(pieceName);
+
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(" at ");
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(positionNotation);
+        }
+
+        if (_movementManager.LastMoveWasCheckmate)
+        {
+            Console.SetCursorPosition(0, stateLine + 2);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"{currentPlayer.Name} checkmates opponent!");
+        }
+
+        Console.ResetColor();
     }
 
     private static void ClearCurrentCommandLine()
@@ -78,7 +133,7 @@ public class Program
             / / / -_) __/  ' \/ / _ \/ _ `/ / / /__/ _ \/ -_|_-<(_-<   |  =  |  
            /_/  \__/_/ /_/_/_/_/_//_/\_,_/_/  \___/_//_/\__/___/___/   /_____\     
                                                                       [_______]
-    ";
+        ";
 
         int maxWidth = welcomeMessage.Split('\n').Max(line => line.Length);
 
@@ -100,7 +155,6 @@ public class Program
         Console.ResetColor();  // Reset the console color
     }
 
-
     private static void UpdateCommandHistory(string command)
     {
         if (commandHistory.Count >= 10)
@@ -110,53 +164,30 @@ public class Program
         commandHistory.Enqueue(command);
     }
 
-    static void RegisterCommands()
-    {
-        chessCommandHandler.RegisterCommand("restart", args =>
-        {
-            
-            chessBoard.ResetGame();
-            turnManager.ResetTurns();
-            chessBoard.Render(chessBoard, chessCommandHandler.HighlightedPositions);
-            return true;
-        }, "restart - Restarts a new game of chess.");
-
-        chessCommandHandler.RegisterCommand("credits", args =>
-        {
-            CurtainAnimation();
-            return true;
-        }, "credits - Show game credits and information.");
-
-        chessCommandHandler.RegisterCommand("spiral", args =>
-        {
-            PerformSpiralDemo();
-            return true;
-        }, "spiral - Demonstrates spiral thingy");
-    }
-
     public static void PerformSpiralDemo()
     {
         Console.WriteLine("Press any key to start the spiral demo...");
         Console.ReadKey(true);
 
-        chessBoard.ResetBoard();
+        _chessBoard.ResetBoard();
 
-        int centerX = chessBoard.Width / 2;
-        int centerY = chessBoard.Height / 2;
+        int centerX = _chessBoard.Width / 2;
+        int centerY = _chessBoard.Height / 2;
 
         // Adjust center position for even dimensions
-        if (chessBoard.Width % 2 == 0) centerX -= 1;
-        if (chessBoard.Height % 2 == 0) centerY -= 1;
+        if (_chessBoard.Width % 2 == 0) centerX -= 1;
+        if (_chessBoard.Height % 2 == 0) centerY -= 1;
 
-        Position centerPosition = new Position(centerX, centerY);
-        ChessPiece spiralPiece = new ChessPiece(PieceType.Rook, Color.White, 1);
-        chessBoard[centerPosition].SetOccupant(spiralPiece);
-        spiralPiece.CurrentTile = chessBoard[centerPosition];
+
+        Position centerPosition = new(centerX, centerY);
+        ChessPiece spiralPiece = new(PieceType.Rook, Color.White, 1);
+        _chessBoard[centerPosition].SetOccupant(spiralPiece);
+        spiralPiece.CurrentTile = _chessBoard[centerPosition];
 
         RenderGame();
 
         // Get tiles
-        var tilesInSpiral = chessBoard.GetTilesInSpiralOrder(centerPosition).ToList();
+        var tilesInSpiral = _chessBoard.GetTilesInSpiralOrder(centerPosition).ToList();
         foreach (var tile in tilesInSpiral)
         {
             Console.WriteLine("Press any key for the next move...");
@@ -171,23 +202,19 @@ public class Program
         RenderGame();
     }
 
-
-
     public static void HighlightTile(Position pos)
     {
-        chessBoard[pos].IsHighlighted = true;
+        _chessBoard[pos].IsHighlighted = true;
     }
 
     public static void ClearHighlights()
     {
-        foreach (var tile in chessBoard)
+        foreach (var tile in _chessBoard)
         {
             tile.IsHighlighted = false;
             tile.RemoveOccupant();
         }
     }
-
-
 
     private static void RenderCommandHistoryAtBottom()
     {
@@ -201,15 +228,16 @@ public class Program
         }
     }
 
-    public static void CurtainAnimation()
+    public static void ShowCredits()
     {
         Console.CursorVisible = false;
         int width = Console.WindowWidth;
         int height = Console.WindowHeight;
-        Random rand = new Random();
-        string chars = "_";  // Characters to use for the curtain
+        Random rand = new();
+        string chars = "▌▀▌";  // Characters to use for the curtain
         double phase = 0.0;       // Phase to create the wave animation
         int curtainSpeed = 10; // open & close speed (less is faster)
+        int stepSize = 3; // cuz it takes ages to do it normally
 
         // Draw a single frame of curtain with animated wavy edges
         void drawCurtain(int size)
@@ -239,10 +267,10 @@ public class Program
         }
 
         // Closing the curtain
-        for (int i = 0; i < width / 2 + 5; i++)  // extend beyond the middle for overlap due to waves (only when closing)
+        for (int i = 0; i < width / 2 + 5; i += stepSize)  // extend beyond the middle for overlap due to waves (only when closing)
         {
             drawCurtain(i);
-            phase -= 0.45;  // - phase to animate the wave going down
+            phase -= 0.85;  // - phase to animate the wave going down
             Thread.Sleep(curtainSpeed);
         }
 
@@ -250,11 +278,11 @@ public class Program
 
         // Opening the curtain
         int leftEdge;
-        for (int i = width / 2 + 5; i > 0; i--)
+        for (int i = width / 2 + 5; i > 0; i -= stepSize)
         {
             leftEdge = Math.Max(0, i); // Adjusted leftEdge calculation to continue opening the curtain until the edge reaches the very left
             drawCurtain(leftEdge);
-            phase += 0.25;  // + phase during opening (wave going up)
+            phase += 0.55;  // + phase during opening (wave going up)
             Thread.Sleep(curtainSpeed);
         }
 
@@ -269,6 +297,7 @@ public class Program
         Console.ReadKey();
         Console.CursorVisible = true;
         Console.Clear();
+
         RenderWelcomeMessage();
         RenderGame();
     }
@@ -329,8 +358,8 @@ public class Program
     static void StartMatrixEffect(int width, int height, int duration)
     {
         // List of words to randomly pick from
-        string[] words = { "7$7", "Wael", "Liam", "Daniel", "D0r", "Dor-Ben-Dor", "777", "$", "C#", "@" };
-        Random rand = new Random();
+        string[] words = { "♛", "Wael", "Liam", "Daniel", "D0r ♚", "Dor-Ben-Dor", "♟", "♜", "♚", "♞" };
+        Random rand = new();
         int[] yPositions = new int[width];
         int scrollSpeed = 177;
 
@@ -353,18 +382,14 @@ public class Program
                 if (xPos + randomWord.Length > width)
                     xPos = width - randomWord.Length;
 
-                if (randomWord == "D0r" || randomWord == "Dor-Ben-Dor")
-                {
+                if (randomWord == "D0r ♚" || randomWord == "Dor-Ben-Dor")
                     Console.ForegroundColor = ConsoleColor.White;
-                }
-                else if (randomWord == "777" || randomWord == "7$7" || randomWord == "C#")
-                {
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                }
+                else if (randomWord == "♛" || randomWord == "♞")
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                else if (randomWord == "♞" || randomWord == "♟")
+                    Console.ForegroundColor = ConsoleColor.Blue;
                 else
-                {
                     Console.ForegroundColor = ConsoleColor.Green;
-                }
 
                 Console.SetCursorPosition(xPos, yPositions[i]);
                 Console.Write(randomWord);
@@ -414,7 +439,7 @@ public class Program
 
         ConsoleColor[] colors = { ConsoleColor.Red, ConsoleColor.Green, ConsoleColor.Blue, ConsoleColor.Yellow };
 
-        int displayTime = 4000; // display time for all frames
+        int displayTime = 997; // display time for all frames
         int frameDisplayDuration = displayTime / colors.Length;
 
         string[] lines = frame.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
@@ -424,7 +449,6 @@ public class Program
             Console.Clear();
             Console.ForegroundColor = colors[i];
             int verticalStart = Math.Max(0, (height - lines.Length) / 2); // This might need adjusting... NOT to cause a crash
-
 
             for (int j = 0; j < lines.Length; j++)
             {

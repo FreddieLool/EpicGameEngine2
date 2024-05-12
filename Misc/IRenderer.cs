@@ -2,5 +2,5 @@
 
 public interface IRenderer
 {
-    void Render(Tilemap tilemap);
+    void Render(Tilemap tilemap, TileObject selectedObject, bool showValidMovesHighlighted = true);
 }

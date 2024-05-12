@@ -4,17 +4,23 @@ using System.Diagnostics;
 
 public class MovementManager : TileActionManager
 {
+    private ChessTurnManager _chessTurnManager;
+
     // store state of last move, cpature, checkmate, ...
     public bool LastMoveWasCapture = false;
     public bool LastMoveWasCheckmate = false;
-    public ChessPiece LastCapturedPiece = null;
+    public ChessPiece? LastCapturedPiece = null;
     public Position LastCapturedPiecePosition;
 
-    private ChessTurnManager chessTurnManager;
+    // selection info
+    public ChessPiece? SelectedPiece;
+    public List<Position> HighlightedPositions = [];
+    public bool ShowValidMovementsHighlighted = true;
+
 
     public MovementManager(ChessTurnManager chessTurnManager)
     {
-        this.chessTurnManager = chessTurnManager;
+        this._chessTurnManager = chessTurnManager;
         ValidateMove = this.ValidateMoveMethod;
         OnInteract = this.HandleInteractionMethod;
         OnMove = this.AfterMoveActionsMethod;
@@ -28,13 +34,13 @@ public class MovementManager : TileActionManager
 
     private bool ValidateMoveMethod(TileObject mover, Position targetPosition, Tilemap board)
     {
-        ChessPiece piece = mover as ChessPiece;
+        ChessPiece? piece = mover as ChessPiece;
         if (IsValidMove(targetPosition, piece, board))
         {
             // Temporarily move to check for threats against the king
-            Tile originalTile = piece.CurrentTile;
+            Tile? originalTile = piece.CurrentTile;
             Tile targetTile = board.GetTile(targetPosition);
-            TileObject originalOccupant = targetTile.Occupant;
+            TileObject? originalOccupant = targetTile.Occupant;
 
             // Perform temporary move
             targetTile.SetOccupant(mover);
@@ -185,18 +191,18 @@ public class MovementManager : TileActionManager
         OnMove(mover, targetTile);  // Trigger any move-related actions
 
         // Get the opponent ID using the chessTurnManager instance
-        Actor currentPlayer = chessTurnManager.GetPlayingActor();
-        Actor opponentPlayer = currentPlayer == chessTurnManager.whitePlayer ? chessTurnManager.blackPlayer : chessTurnManager.whitePlayer;
+        Actor currentPlayer = _chessTurnManager.GetPlayingActor();
+        Actor opponentPlayer = currentPlayer == _chessTurnManager.whitePlayer ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
 
         if (IsKingInCheck(opponentPlayer.Id, board))
         {
             if (CheckForCheckmate(opponentPlayer.Id, board))
             {
-                CommandHandler.DisplayNotificationMessage($"{currentPlayer.Name} checkmates opponent!");
+                CommandHandler.DisplayNotification($"{currentPlayer.Name} checkmates opponent!");
             }
             else
             {
-                CommandHandler.DisplayNotificationMessage($"{currentPlayer.Name} checks opponent!");
+                CommandHandler.DisplayNotification($"{currentPlayer.Name} checks opponent!");
             }
         }
 
@@ -240,7 +246,7 @@ public class MovementManager : TileActionManager
     {
         int direction = piece.Color == Color.White ? -1 : 1;
         Position currentPosition = piece.CurrentTile.Position;
-        Position singleStepForward = new Position(currentPosition.X, currentPosition.Y + direction);
+        Position singleStepForward = new(currentPosition.X, currentPosition.Y + direction);
 
         // Single step forward
         if (board.IsPositionValid(singleStepForward) && !board.IsTileOccupied(singleStepForward))
@@ -251,7 +257,7 @@ public class MovementManager : TileActionManager
         // Double step from start
         if ((piece.Color == Color.White && currentPosition.Y == 6) || (piece.Color == Color.Black && currentPosition.Y == 1))
         {
-            Position doubleStepForward = new Position(currentPosition.X, currentPosition.Y + 2 * direction);
+            Position doubleStepForward = new(currentPosition.X, currentPosition.Y + 2 * direction);
             if (board.IsPositionValid(doubleStepForward) && !board.IsTileOccupied(doubleStepForward) && !board.IsTileOccupied(singleStepForward))
             {
                 yield return doubleStepForward;
@@ -260,8 +266,8 @@ public class MovementManager : TileActionManager
 
         // Captures
         Position[] potentialCaptures = {
-        new Position(currentPosition.X - 1, currentPosition.Y + direction),
-        new Position(currentPosition.X + 1, currentPosition.Y + direction)
+        new(currentPosition.X - 1, currentPosition.Y + direction),
+        new(currentPosition.X + 1, currentPosition.Y + direction)
         };
 
         foreach (Position capturePos in potentialCaptures)
@@ -273,7 +279,7 @@ public class MovementManager : TileActionManager
         }
     }
 
-    private IEnumerable<Position> GetRookMoves(ChessPiece piece, Tilemap board)
+    private List<Position> GetRookMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
         Position currentPosition = piece.CurrentTile.Position;
@@ -290,7 +296,7 @@ public class MovementManager : TileActionManager
             // Check positive direction (e.g., right or up)
             for (int i = 1; i < board.Width; i++)
             {
-                Position nextPosition = new Position(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
+                Position nextPosition = new(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -305,10 +311,10 @@ public class MovementManager : TileActionManager
                 validMoves.Add(nextPosition);
             }
 
-            // Check negative direction (e.g., left or down)
+            // Check negative direction (left or down)
             for (int i = 1; i < board.Width; i++)
             {
-                Position nextPosition = new Position(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
+                Position nextPosition = new(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -328,9 +334,9 @@ public class MovementManager : TileActionManager
 
     }
 
-    private IEnumerable<Position> GetKnightMoves(ChessPiece piece, Tilemap board)
+    private List<Position> GetKnightMoves(ChessPiece piece, Tilemap board)
     {
-        List<Position> validMoves = new List<Position>();
+        List<Position> validMoves = [];
         Position currentPosition = piece.CurrentTile.Position;
 
         // Possible knight moves in "L" shapes
@@ -344,7 +350,7 @@ public class MovementManager : TileActionManager
 
         foreach (Position move in moves)
         {
-            Position nextPosition = new Position(currentPosition.X + move.X, currentPosition.Y + move.Y);
+            Position nextPosition = new(currentPosition.X + move.X, currentPosition.Y + move.Y);
             if (board.IsPositionValid(nextPosition))  // Check if the position is on the board
             {
                 if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId))
@@ -357,9 +363,9 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
-    private IEnumerable<Position> GetBishopMoves(ChessPiece piece, Tilemap board)
+    private static List<Position> GetBishopMoves(ChessPiece piece, Tilemap board)
     {
-        List<Position> validMoves = new List<Position>();
+        List<Position> validMoves = [];
         Position currentPosition = piece.CurrentTile.Position;
 
         // Directions a bishop can move: all four diagonals
@@ -374,7 +380,7 @@ public class MovementManager : TileActionManager
             // Check positive direction (e.g., right up)
             for (int i = 1; i < Math.Max(board.Width, board.Height); i++)
             {
-                Position nextPosition = new Position(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
+                Position nextPosition = new(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -392,7 +398,7 @@ public class MovementManager : TileActionManager
             // Check negative direction (e.g., left down)
             for (int i = 1; i < Math.Max(board.Width, board.Height); i++)
             {
-                Position nextPosition = new Position(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
+                Position nextPosition = new(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -410,9 +416,9 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
-    private IEnumerable<Position> GetKingMoves(ChessPiece piece, Tilemap board)
+    private List<Position> GetKingMoves(ChessPiece piece, Tilemap board)
     {
-        List<Position> validMoves = new List<Position>();
+        List<Position> validMoves = [];
         Position currentPosition = piece.CurrentTile.Position;
 
         // Possible directions for the king's movement
@@ -426,7 +432,7 @@ public class MovementManager : TileActionManager
 
         foreach (Position move in moves)
         {
-            Position nextPosition = new Position(currentPosition.X + move.X, currentPosition.Y + move.Y);
+            Position nextPosition = new(currentPosition.X + move.X, currentPosition.Y + move.Y);
             if (board.IsPositionValid(nextPosition))  // Check if the position is on the board
             {
                 if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId))
@@ -441,9 +447,9 @@ public class MovementManager : TileActionManager
 
     }
 
-    private IEnumerable<Position> GetQueenMoves(ChessPiece piece, Tilemap board)
+    private List<Position> GetQueenMoves(ChessPiece piece, Tilemap board)
     {
-        List<Position> validMoves = new List<Position>();
+        List<Position> validMoves = [];
         Position currentPosition = piece.CurrentTile.Position;
 
         // Directions the queen can move: vertical, horizontal, and diagonal
@@ -460,7 +466,7 @@ public class MovementManager : TileActionManager
             // Check positive directions
             for (int i = 1; i < Math.Max(board.Width, board.Height); i++)
             {
-                Position nextPosition = new Position(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
+                Position nextPosition = new(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -478,7 +484,7 @@ public class MovementManager : TileActionManager
             // Check negative directions
             for (int i = 1; i < Math.Max(board.Width, board.Height); i++)
             {
-                Position nextPosition = new Position(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
+                Position nextPosition = new(currentPosition.X + negative.X * i, currentPosition.Y + negative.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
 
@@ -494,5 +500,11 @@ public class MovementManager : TileActionManager
             }
         }
         return validMoves;
+    }
+
+    public void ResetSelectionAndState()
+    {
+        SelectedPiece = null;
+        HighlightedPositions.Clear();
     }
 }

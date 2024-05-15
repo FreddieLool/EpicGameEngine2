@@ -11,7 +11,6 @@ public class Program
     private static MovementManager _movementManager;
     private static Renderer _renderer;
 
-
     static void Main()
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -29,6 +28,9 @@ public class Program
         MainLoop();
     }
 
+    /// <summary>
+    /// Main loop of the program handling user input and game rendering.
+    /// </summary>
     static void MainLoop()
     {
         RenderWelcomeMessage();
@@ -56,6 +58,9 @@ public class Program
         }
     }
 
+    /// <summary>
+    /// Renders the game board and pieces.
+    /// </summary>
     private static void RenderGame()
     {
         // User defined colors
@@ -72,6 +77,9 @@ public class Program
         _renderer.Render(_chessBoard, _movementManager.SelectedPiece, _movementManager.ShowValidMovementsHighlighted);
     }
 
+    /// <summary>
+    /// Displays the current game state, and captures.
+    /// </summary>
     public static void DisplayGameState()
     {
         int stateLine = 2; // number for the game state
@@ -106,16 +114,12 @@ public class Program
             Console.WriteLine(positionNotation);
         }
 
-        if (_movementManager.LastMoveWasCheckmate)
-        {
-            Console.SetCursorPosition(0, stateLine + 2);
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine($"{currentPlayer.Name} checkmates opponent!");
-        }
-
         Console.ResetColor();
     }
 
+    /// <summary>
+    /// Clears the current command line.
+    /// </summary>
     private static void ClearCurrentCommandLine()
     {
         Console.SetCursorPosition(0, 0);
@@ -123,6 +127,9 @@ public class Program
         Console.SetCursorPosition(0, 0);
     }
 
+    /// <summary>
+    /// Renders the welcome message at the start of the game.
+    /// </summary>
     public static void RenderWelcomeMessage()
     {
         string welcomeMessage = @"                
@@ -155,6 +162,9 @@ public class Program
         Console.ResetColor();  // Reset the console color
     }
 
+    /// <summary>
+    /// Updates the command history.
+    /// </summary>
     private static void UpdateCommandHistory(string command)
     {
         if (commandHistory.Count >= 10)
@@ -164,6 +174,9 @@ public class Program
         commandHistory.Enqueue(command);
     }
 
+    /// <summary>
+    /// Performs a spiral demo by highlighting tiles in a spiral order.
+    /// </summary>
     public static void PerformSpiralDemo()
     {
         Console.WriteLine("Press any key to start the spiral demo...");
@@ -202,11 +215,17 @@ public class Program
         RenderGame();
     }
 
+    /// <summary>
+    /// Highlights a specific tile.
+    /// </summary>
     public static void HighlightTile(Position pos)
     {
         _chessBoard[pos].IsHighlighted = true;
     }
 
+    /// <summary>
+    /// Clears all highlights from the board.
+    /// </summary>
     public static void ClearHighlights()
     {
         foreach (var tile in _chessBoard)
@@ -216,6 +235,9 @@ public class Program
         }
     }
 
+    /// <summary>
+    /// Renders the command history at the bottom of the console.
+    /// </summary>
     private static void RenderCommandHistoryAtBottom()
     {
         int historyStartLine = Console.WindowHeight - commandHistory.Count - 2;
@@ -228,6 +250,9 @@ public class Program
         }
     }
 
+    /// <summary>
+    /// Shows the credits with a curtain animation and matrix effect.
+    /// </summary>
     public static void ShowCredits()
     {
         Console.CursorVisible = false;
@@ -302,6 +327,9 @@ public class Program
         RenderGame();
     }
 
+    /// <summary>
+    /// Shows ASCII art with animations.
+    /// </summary>
     private static void ShowAsciiArt(int width, int height)
     {
         // ASCII art block
@@ -355,6 +383,9 @@ public class Program
         Console.ReadKey();
     }
 
+    /// <summary>
+    /// Starts the Matrix effect with random words falling down the screen.
+    /// </summary>
     static void StartMatrixEffect(int width, int height, int duration)
     {
         // List of words to randomly pick from
@@ -405,6 +436,9 @@ public class Program
         Console.ResetColor();
     }
 
+    /// <summary>
+    /// Shows the tiltan logo animation with changing colors.
+    /// </summary>
     private static void ShowLogoAnimation(int width, int height)
     {
         string frame = @"

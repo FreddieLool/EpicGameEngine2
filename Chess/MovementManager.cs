@@ -6,17 +6,16 @@ public class MovementManager : TileActionManager
 {
     private ChessTurnManager _chessTurnManager;
 
-    // store state of last move, cpature, checkmate, ...
+    // State variables for last move
     public bool LastMoveWasCapture = false;
     public bool LastMoveWasCheckmate = false;
     public ChessPiece? LastCapturedPiece = null;
     public Position LastCapturedPiecePosition;
 
-    // selection info
+    // Selection info
     public ChessPiece? SelectedPiece;
     public List<Position> HighlightedPositions = [];
     public bool ShowValidMovementsHighlighted = true;
-
 
     public MovementManager(ChessTurnManager chessTurnManager)
     {
@@ -26,12 +25,18 @@ public class MovementManager : TileActionManager
         OnMove = this.AfterMoveActionsMethod;
     }
 
+    /// <summary>
+    /// Checks if a move is valid based on the piece's possible moves.
+    /// </summary>
     private bool IsValidMove(Position newPosition, ChessPiece piece, Tilemap board)
     {
         var validMoves = GetValidMoves(piece, board).ToList();
         return validMoves.Contains(newPosition);
     }
 
+    /// <summary>
+    /// Validates a move by temporarily performing it and checking for threats.
+    /// </summary>
     private bool ValidateMoveMethod(TileObject mover, Position targetPosition, Tilemap board)
     {
         ChessPiece? piece = mover as ChessPiece;
@@ -58,12 +63,18 @@ public class MovementManager : TileActionManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if the king of the given actor is in check.
+    /// </summary>
     private bool IsKingInCheck(int actorId, Tilemap board)
     {
         ChessPiece king = FindKing(board, actorId);
         return CheckForThreats(king, board);
     }
 
+    /// <summary>
+    /// Handles interactions between pieces, primarily for captures.
+    /// </summary>
     private bool HandleInteractionMethod(TileObject mover, TileObject occupant, Tilemap board)
     {
         Debug.WriteLine($"Handling interaction between {((ChessPiece)mover).Name} and {occupant}");
@@ -76,7 +87,7 @@ public class MovementManager : TileActionManager
         {
             if (targetPiece.ActorId != mover.ActorId)
             {
-                bool isLegal = IsMoveLegalAfterInteraction(mover, targetPiece, board);
+                bool isLegal = IsMoveLegal(mover, targetPiece.CurrentTile.Position, board);
                 Debug.WriteLine(isLegal ? "Interaction legal." : "Interaction results in illegal move.");
                 if (!isLegal)
                 {
@@ -94,6 +105,9 @@ public class MovementManager : TileActionManager
         return false; // No interaction possible (same player's piece)
     }
 
+    /// <summary>
+    /// Performs actions after a move, such as checking for pawn promotion.
+    /// </summary>
     private void AfterMoveActions(ChessPiece piece, Tile newTile)
     {
         // Check for pawn promotion
@@ -110,28 +124,9 @@ public class MovementManager : TileActionManager
         AfterMoveActions((ChessPiece)mover, newTile);
     }
 
-    private bool IsMoveLegalAfterInteraction(ChessPiece mover, ChessPiece targetPiece, Tilemap board)
-    {
-        // Temporarily make the move
-        var originalPosition = mover.CurrentTile;
-        var targetPosition = targetPiece.CurrentTile;
-
-        board[targetPosition.Position].SetOccupant(mover);
-        originalPosition.RemoveOccupant();
-
-        // Find the king for the current player
-        ChessPiece king = FindKing(board, mover.ActorId);
-
-        // Check if the king is in check after the move
-        bool kingInCheck = CheckForThreats(king, board);
-
-        // Undo the move
-        originalPosition.SetOccupant(mover);
-        targetPosition.SetOccupant(targetPiece);
-
-        return !kingInCheck;
-    }
-
+    /// <summary>
+    /// Checks if the king is under threat from any opposing piece.
+    /// </summary>
     public bool CheckForThreats(ChessPiece king, Tilemap board)
     {
         Position kingPosition = king.CurrentTile.Position;
@@ -150,6 +145,9 @@ public class MovementManager : TileActionManager
         return false;
     }
 
+    /// <summary>
+    /// Checks if the opponent is in checkmate.
+    /// </summary>
     public bool CheckForCheckmate(int opponentActorId, Tilemap chessBoard)
     {
         bool isKingInCheck = false;
@@ -158,7 +156,7 @@ public class MovementManager : TileActionManager
             var validMoves = GetValidMoves(piece, chessBoard);
             foreach (var move in validMoves)
             {
-                if (TryMove(piece, move, chessBoard))
+                if (IsMoveLegal(piece, move, chessBoard))
                 {
                     return false;  // Found a legal move that avoids check
                 }
@@ -171,44 +169,68 @@ public class MovementManager : TileActionManager
         return isKingInCheck;  // If king is in check and no moves prevent check, it's checkmate
     }
 
-    public bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
+    /// <summary>
+    /// Checks if a move is legal by temporarily performing it and checking for threats.
+    /// </summary>
+    private bool IsMoveLegal(ChessPiece piece, Position targetPosition, Tilemap board)
+    {
+        Tile? originalTile = piece.CurrentTile;
+        Tile targetTile = board.GetTile(targetPosition);
+        TileObject? originalOccupant = targetTile.Occupant;
+
+        // Perform temporary move
+        targetTile.SetOccupant(piece);
+        originalTile.RemoveOccupant();
+
+        // Check for threats against the mover's king
+        bool isMoveLegal = !IsKingInCheck(piece.ActorId, board);
+
+        // Undo the temporary move
+        originalTile.SetOccupant(piece);
+        targetTile.SetOccupant(originalOccupant);
+
+        return isMoveLegal;
+    }
+
+    /// <summary>
+    /// Attempts to move a piece to a new position.
+    /// </summary>
+    public override bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
     {
         if (!ValidateMove(mover, targetPosition, board))
             return false;
 
         Tile targetTile = board.GetTile(targetPosition);
-        Tile currentTile = mover.CurrentTile;
-
-        if (targetTile.Occupant != null)
-        {
-            if (!OnInteract(mover, targetTile.Occupant, board))  // Interaction check
-                return false;  // Interaction failed
-        }
+        Tile? currentTile = mover.CurrentTile;
 
         targetTile.SetOccupant(mover);
-        currentTile.RemoveOccupant();
+        currentTile?.RemoveOccupant();
 
-        OnMove(mover, targetTile);  // Trigger any move-related actions
+        OnMove(mover, targetTile);
 
-        // Get the opponent ID using the chessTurnManager instance
         Actor currentPlayer = _chessTurnManager.GetPlayingActor();
         Actor opponentPlayer = currentPlayer == _chessTurnManager.whitePlayer ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
 
+        // Check if the opponent's king is in check after the move
         if (IsKingInCheck(opponentPlayer.Id, board))
         {
+            // Check for checkm8
             if (CheckForCheckmate(opponentPlayer.Id, board))
             {
-                CommandHandler.DisplayNotification($"{currentPlayer.Name} checkmates opponent!");
+                CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n {currentPlayer.Name} wins! Congratulations.\n 'restart' to start a new game.");
             }
             else
             {
-                CommandHandler.DisplayNotification($"{currentPlayer.Name} checks opponent!");
+                CommandHandler.DisplayCenteredNotification($"{currentPlayer.Name} checks {opponentPlayer.Name}!");
             }
         }
 
         return true;
     }
 
+    /// <summary>
+    /// Finds the king for the specified actor.
+    /// </summary>
     public ChessPiece FindKing(Tilemap board, int actorId)
     {
         foreach (var tile in board.GetAllTiles())
@@ -221,7 +243,9 @@ public class MovementManager : TileActionManager
         throw new InvalidOperationException("King not found on the board, which should never happen.");
     }
 
-    // get valid moves for a specific chess piece
+    /// <summary>
+    /// Gets valid moves for a specific chess piece.
+    /// </summary>
     public IEnumerable<Position> GetValidMoves(ChessPiece piece, Tilemap board)
     {
         switch (piece.Type)
@@ -242,6 +266,10 @@ public class MovementManager : TileActionManager
                 return [];
         }
     }
+
+    /// <summary>
+    /// Gets valid moves for a pawn.
+    /// </summary>
     private IEnumerable<Position> GetPawnMoves(ChessPiece piece, Tilemap board)
     {
         int direction = piece.Color == Color.White ? -1 : 1;
@@ -279,6 +307,9 @@ public class MovementManager : TileActionManager
         }
     }
 
+    /// <summary>
+    /// Gets valid moves for a rook.
+    /// </summary>
     private List<Position> GetRookMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
@@ -334,6 +365,9 @@ public class MovementManager : TileActionManager
 
     }
 
+    /// <summary>
+    /// Gets valid moves for a knight.
+    /// </summary>
     private List<Position> GetKnightMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
@@ -363,6 +397,9 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
+    /// <summary>
+    /// Gets valid moves for a bishop.
+    /// </summary>
     private static List<Position> GetBishopMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
@@ -416,6 +453,9 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
+    /// <summary>
+    /// Gets valid moves for a king.
+    /// </summary>
     private List<Position> GetKingMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
@@ -447,6 +487,9 @@ public class MovementManager : TileActionManager
 
     }
 
+    /// <summary>
+    /// Gets valid moves for a queen.
+    /// </summary>
     private List<Position> GetQueenMoves(ChessPiece piece, Tilemap board)
     {
         List<Position> validMoves = [];
@@ -502,6 +545,9 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
+    /// <summary>
+    /// Resets the selection and highlights.
+    /// </summary>
     public void ResetSelectionAndState()
     {
         SelectedPiece = null;

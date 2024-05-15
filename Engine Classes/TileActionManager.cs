@@ -32,7 +32,7 @@ namespace EpicTileEngine
         /// <returns>True if the move is successful, otherwise false.</returns>
         public virtual bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
         {
-            Trace.WriteLine($"Attempt to move from {mover.CurrentTile.Position} to {targetPosition}");
+            Trace.WriteLine($"Attempt to move from {mover?.CurrentTile.Position} to {targetPosition}");
 
             // Check if the target position is within the tilemap boundaries
             if (!board.IsPositionValid(targetPosition))
@@ -51,7 +51,6 @@ namespace EpicTileEngine
                 return false;
             }
 
-            // Additional debug information
             Trace.WriteLine($"Target tile passable: {targetTile.IsPassable}, Occupied by self: {targetTile.Occupant?.ActorId == mover.ActorId}");
 
             // Calculate the movement vector and distance

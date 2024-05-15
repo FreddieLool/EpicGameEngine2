@@ -4,6 +4,7 @@ public class ChessAI
 {
     private Process stockfish;
 
+    // Not enough time to implement :(
     public ChessAI()
     {
         stockfish = new Process

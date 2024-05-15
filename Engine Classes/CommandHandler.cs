@@ -95,6 +95,49 @@ namespace EpicTileEngine
             Console.ResetColor();
         }
 
+        // <summary>
+        /// Displays a centered notification message at the bottom center of the console.
+        /// </summary>
+        /// <param name="message">The message to display.</param>
+        public static void DisplayCenteredNotification(string message, ConsoleColor color = ConsoleColor.White)
+        {
+            // Split the message into lines
+            string[] lines = message.Split('\n');
+            int consoleWidth = Console.WindowWidth;
+            int bottomRow = Console.WindowHeight - lines.Length - 3;
+
+            // Clear previous messages
+            ClearPreviousCenteredNotification(lines.Length);
+
+            Console.ForegroundColor = color;
+
+            // Display each line centered
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                int messageLength = line.Length;
+                int leftPadding = (consoleWidth - messageLength) / 2;
+                Console.SetCursorPosition(leftPadding, bottomRow + i);
+                Console.WriteLine(line);
+            }
+
+            Console.ResetColor();
+        }
+
+        private static void ClearPreviousCenteredNotification(int numberOfLines)
+        {
+            int consoleWidth = Console.WindowWidth;
+            int bottomRow = Console.WindowHeight - numberOfLines - 3;
+
+            for (int i = 0; i < numberOfLines; i++)
+            {
+                Console.SetCursorPosition(0, bottomRow + i);
+                Console.Write(new string(' ', consoleWidth));
+            }
+        }
+
+
+
         /// <summary>
         /// Clears the console and re-renders the welcome message.
         /// </summary>

@@ -19,7 +19,7 @@
 
         public void Render(Tilemap tilemap, TileObject? selectedObject = null, bool showValidMovesHighlighted = true)
         {
-            int boardWidth = tilemap.Width * 3;  // Each tile is 3 chars wide
+            int boardWidth = tilemap.Width * 3 + 5;  // Each tile is 3 chars wide + 5 to account for spacing, etc.. (fully centered board)
             int boardHeight = tilemap.Height;
 
             int consoleWidth = Console.WindowWidth;

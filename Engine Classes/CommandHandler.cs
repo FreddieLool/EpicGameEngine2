@@ -72,6 +72,7 @@ namespace EpicTileEngine
         public bool DisplayHelp()
         {
             Console.Clear();
+            ClearErrorMessage();
             Console.SetCursorPosition(0, 1);
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Available commands:");
@@ -101,7 +102,7 @@ namespace EpicTileEngine
         /// <param name="message">The message to display.</param>
         public static void DisplayCenteredNotification(string message, ConsoleColor color = ConsoleColor.White)
         {
-            // Split the message into lines
+            // Split the message into lines - for centering each line
             string[] lines = message.Split('\n');
             int consoleWidth = Console.WindowWidth;
             int bottomRow = Console.WindowHeight - lines.Length - 3;
@@ -124,19 +125,19 @@ namespace EpicTileEngine
             Console.ResetColor();
         }
 
-        private static void ClearPreviousCenteredNotification(int numberOfLines)
+        // Method to clear the previous centered message
+        public static void ClearPreviousCenteredNotification(int numberOfLines)
         {
             int consoleWidth = Console.WindowWidth;
             int bottomRow = Console.WindowHeight - numberOfLines - 3;
 
+            // Clear each line
             for (int i = 0; i < numberOfLines; i++)
             {
                 Console.SetCursorPosition(0, bottomRow + i);
                 Console.Write(new string(' ', consoleWidth));
             }
         }
-
-
 
         /// <summary>
         /// Clears the console and re-renders the welcome message.

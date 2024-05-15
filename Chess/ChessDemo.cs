@@ -149,6 +149,8 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         switch (formationName.ToLower())
         {
             case "1":
+                // A well known challenge, where white can checkm8 black in a few moves if played correctly
+                // can't recall its name
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c5");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c4");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "b4");
@@ -167,8 +169,7 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
 
                 PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "f2");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.White, whitePlayer.Id), "h2");
-                break;
-
+            break;
 
             case "2":
                 PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h7");
@@ -176,16 +177,16 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
                 PlacePiece(new ChessPiece(PieceType.Knight, Color.White, whitePlayer.Id), "e7");
                 PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "e3");
                 PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "g1");
-                break;
+            break;
 
             case "checkmate1":
                 PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h8");
                 PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "g6");
                 PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "f7");
-                break;
+            break;
 
 
-            case "scholarsmate":
+            case "4":
                 // Scholar's Mate: A classic checkmate in 4 moves
                 PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "e8");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "e5");
@@ -194,19 +195,41 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
                 PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "e1");
                 PlacePiece(new ChessPiece(PieceType.Queen, Color.White, whitePlayer.Id), "h5");
                 PlacePiece(new ChessPiece(PieceType.Bishop, Color.White, whitePlayer.Id), "c4");
-                break;
+            break;
 
             case "5":
-                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
-                break;
+                // Boden's mate
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a8");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "a7");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "b7");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.Black, blackPlayer.Id), "f8");
+                PlacePiece(new ChessPiece(PieceType.Bishop, Color.White, whitePlayer.Id), "d5");
+                PlacePiece(new ChessPiece(PieceType.Bishop, Color.White, whitePlayer.Id), "e4");
+                PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "e1");
+            break;
 
             case "6":
-                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "a2");
-                break;
+                // Back rank mate
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h8");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "g7");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "d8");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "e8");
+                PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "e1");
+            break;
+
+            case "7":
+                // Smothered Mate
+                PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h8");
+                PlacePiece(new ChessPiece(PieceType.Knight, Color.White, whitePlayer.Id), "f7");
+                PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "e1");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "g7");
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "g8");
+                PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "f8");
+            break;
 
             default:
                 CommandHandler.DisplayNotification("Unknown formation name.", ConsoleColor.Red);
-                break;
+            break;
         }
     }
 

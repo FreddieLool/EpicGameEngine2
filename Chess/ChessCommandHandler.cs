@@ -165,25 +165,26 @@ internal class ChessCommandHandler : CommandHandler
     private bool DisplayFormations(string[] args)
     {
         var formations = new List<string>
-    {
-        "1: Basic Formation",
-        "2: Knight's Challenge",
-        "checkmate1: Simple Checkmate",
-        "4: Rook's Defense",
-        "5: Bishop's Path",
-        "6: Queen's Gambit"
-    };
+        {
+            "1: Challenge 1",
+            "2: Challenge 2",
+            "checkmate1: Simple Checkmate",
+            "4: Scholar's Mate",
+            "5: Boden's Mate",
+            "6: Back Rank Mate",
+            "7 Smothered Mate"
+        };
+
+        // Clear previous centered notifications
+        ClearPreviousCenteredNotification(formations.Count);
 
         // Concatenate formations into a single string with new lines
         string formationList = string.Join("\n", formations);
 
-        // Display the formations
         DisplayCenteredNotification(formationList, ConsoleColor.Yellow);
 
         return true;
     }
-
-
 
     /// <summary>
     /// Strips the prefix from the piece name.

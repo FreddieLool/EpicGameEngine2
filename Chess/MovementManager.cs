@@ -20,9 +20,9 @@ public class MovementManager : TileActionManager
     public MovementManager(ChessTurnManager chessTurnManager)
     {
         this._chessTurnManager = chessTurnManager;
-        ValidateMove = this.ValidateMoveMethod;
-        OnInteract = this.HandleInteractionMethod;
-        OnMove = this.AfterMoveActionsMethod;
+        base.ValidateMove = this.ValidateMove;
+        OnInteract = this.HandleInteraction;
+        OnMove = this.AfterMoveActions;
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Validates a move by temporarily performing it and checking for threats.
     /// </summary>
-    private bool ValidateMoveMethod(TileObject mover, Position targetPosition, Tilemap board)
+    private bool ValidateMove(TileObject mover, Position targetPosition, Tilemap board)
     {
         ChessPiece? piece = mover as ChessPiece;
         if (IsValidMove(targetPosition, piece, board))
@@ -75,19 +75,14 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Handles interactions between pieces, primarily for captures.
     /// </summary>
-    private bool HandleInteractionMethod(TileObject mover, TileObject occupant, Tilemap board)
+    private bool HandleInteraction(TileObject mover, TileObject occupant, Tilemap board)
     {
-        Debug.WriteLine($"Handling interaction between {((ChessPiece)mover).Name} and {occupant}");
-        return HandleInteraction((ChessPiece)mover, occupant, board);
-    }
-
-    private bool HandleInteraction(ChessPiece mover, TileObject occupant, Tilemap board)
-    {
+        ChessPiece? chessPiece = mover as ChessPiece; // Cast
         if (occupant is ChessPiece targetPiece)
         {
             if (targetPiece.ActorId != mover.ActorId)
             {
-                bool isLegal = IsMoveLegal(mover, targetPiece.CurrentTile.Position, board);
+                bool isLegal = IsMoveLegal(chessPiece, targetPiece.CurrentTile.Position, board);
                 Debug.WriteLine(isLegal ? "Interaction legal." : "Interaction results in illegal move.");
                 if (!isLegal)
                 {
@@ -99,6 +94,7 @@ public class MovementManager : TileActionManager
                 LastCapturedPiece = targetPiece; // Update the last captured piece
                 LastCapturedPiecePosition = targetPiece.CurrentTile.Position;
                 LastMoveWasCapture = true; // Indicate that the last move was a capture
+                Trace.WriteLine("Last move was capture");
                 return true; // Capture is allowed
             }
         }
@@ -108,20 +104,18 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Performs actions after a move, such as checking for pawn promotion.
     /// </summary>
-    private void AfterMoveActions(ChessPiece piece, Tile newTile)
+    private void AfterMoveActions(TileObject piece, Tile newTile)
     {
-        // Check for pawn promotion
-        if (piece.Type == PieceType.Pawn && (newTile.Position.Y == 0 || newTile.Position.Y == 7))
+        ChessPiece? chessPiece = piece as ChessPiece; // Cast
+        if (chessPiece != null)
         {
-            piece.Promote(PieceType.Queen);
-            piece.Symbol = 'Q';
+            // Check for pawn promotion
+            if (chessPiece.Type == PieceType.Pawn && (newTile.Position.Y == 0 || newTile.Position.Y == 7))
+            {
+                chessPiece.Promote(PieceType.Queen);
+                chessPiece.Symbol = 'Q';
+            }
         }
-    }
-
-    private void AfterMoveActionsMethod(TileObject mover, Tile newTile)
-    {
-        Debug.WriteLine($"Executing post-move actions for {((ChessPiece)mover).Name}");
-        AfterMoveActions((ChessPiece)mover, newTile);
     }
 
     /// <summary>
@@ -197,16 +191,23 @@ public class MovementManager : TileActionManager
     /// </summary>
     public override bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
     {
-        if (!ValidateMove(mover, targetPosition, board))
+        if (!base.ValidateMove(mover, targetPosition, board))
             return false;
 
         Tile targetTile = board.GetTile(targetPosition);
         Tile? currentTile = mover.CurrentTile;
 
+        // Handle interaction before performing the move
+        if (targetTile.Occupant != null)
+        {
+            if (!OnInteract.Invoke(mover, targetTile.Occupant, board))
+                return false;
+        }
+
         targetTile.SetOccupant(mover);
         currentTile?.RemoveOccupant();
 
-        OnMove(mover, targetTile);
+        OnMove.Invoke(mover, targetTile);
 
         Actor currentPlayer = _chessTurnManager.GetPlayingActor();
         Actor opponentPlayer = currentPlayer == _chessTurnManager.whitePlayer ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
@@ -333,7 +334,7 @@ public class MovementManager : TileActionManager
 
                 if (board.IsTileOccupied(nextPosition))
                 {
-                    if (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId)
+                    if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
                     {
                         validMoves.Add(nextPosition);
                     }
@@ -351,7 +352,7 @@ public class MovementManager : TileActionManager
 
                 if (board.IsTileOccupied(nextPosition))
                 {
-                    if (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId)
+                    if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
                     {
                         validMoves.Add(nextPosition);
                     }
@@ -387,7 +388,7 @@ public class MovementManager : TileActionManager
             Position nextPosition = new(currentPosition.X + move.X, currentPosition.Y + move.Y);
             if (board.IsPositionValid(nextPosition))  // Check if the position is on the board
             {
-                if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId))
+                if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId))
                 {
                     // Add the position if it is not occupied or is occupied by an opponent's piece
                     validMoves.Add(nextPosition);
@@ -423,7 +424,7 @@ public class MovementManager : TileActionManager
 
                 if (board.IsTileOccupied(nextPosition))
                 {
-                    if (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId)
+                    if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
                     {
                         validMoves.Add(nextPosition);
                     }
@@ -441,7 +442,7 @@ public class MovementManager : TileActionManager
 
                 if (board.IsTileOccupied(nextPosition))
                 {
-                    if (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId)
+                    if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
                     {
                         validMoves.Add(nextPosition);
                     }
@@ -475,7 +476,7 @@ public class MovementManager : TileActionManager
             Position nextPosition = new(currentPosition.X + move.X, currentPosition.Y + move.Y);
             if (board.IsPositionValid(nextPosition))  // Check if the position is on the board
             {
-                if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId))
+                if (!board.IsTileOccupied(nextPosition) || (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId))
                 {
                     // Add the position if it is not occupied or is occupied by an opponent's piece
                     validMoves.Add(nextPosition);
@@ -515,7 +516,7 @@ public class MovementManager : TileActionManager
 
                 if (board.IsTileOccupied(nextPosition))
                 {
-                    if (board.GetTile(nextPosition).Occupant.ActorId != piece.ActorId)
+                    if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
                     {
                         validMoves.Add(nextPosition);
                     }

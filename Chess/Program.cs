@@ -1,6 +1,7 @@
 ﻿
 using EpicGameEngine;
 using EpicTileEngine;
+using System.Diagnostics;
 
 public class Program
 {
@@ -82,7 +83,7 @@ public class Program
     /// </summary>
     public static void DisplayGameState()
     {
-        int stateLine = 2; // number for the game state
+        int stateLine = 2; // Line number for the game state
         Console.SetCursorPosition(0, stateLine);
         Console.Write(new string(' ', Console.WindowWidth));
 
@@ -112,10 +113,13 @@ public class Program
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(positionNotation);
+
+            CommandHandler.DisplayCenteredNotification($"{currentPlayer.Name} captures {pieceName} at {positionNotation}", ConsoleColor.Red);
         }
 
         Console.ResetColor();
     }
+
 
     /// <summary>
     /// Clears the current command line.

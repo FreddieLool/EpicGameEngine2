@@ -54,8 +54,8 @@ public class Program
 
             if (string.Equals(command, "exit", StringComparison.OrdinalIgnoreCase)) break;
 
-            RenderGame();
             DisplayGameState(); // refresh every cmd
+            RenderGame();
             RenderCommandHistoryAtBottom();
         }
     }
@@ -98,7 +98,6 @@ public class Program
         Console.Write("State: ");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine($"{currentPlayer.Name}'s turn");
-
 
         if (_movementManager.LastMoveWasCapture)
         {

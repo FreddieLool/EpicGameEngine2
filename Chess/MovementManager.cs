@@ -66,7 +66,7 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Checks if the king of the given actor is in check.
     /// </summary>
-    private bool IsKingInCheck(int actorId, Tilemap board)
+    public bool IsKingInCheck(int actorId, Tilemap board)
     {
         ChessPiece king = FindKing(board, actorId);
         return CheckForThreats(king, board);
@@ -223,7 +223,7 @@ public class MovementManager : TileActionManager
             // Check for checkm8 or check
             if (CheckForCheckmate(opponentPlayer.Id, board))
             {
-                CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n {currentPlayer.Name} wins! Congratulations.\n 'restart' to start a new game.");
+                CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n 'restart' to start a new game.");
             }
             else
             {

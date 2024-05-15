@@ -109,6 +109,8 @@ internal class ChessCommandHandler : CommandHandler
         }
 
         Actor currentlyPlaying = _chessTurnManager.GetPlayingActor();
+        Actor opponentPlayer = (currentlyPlaying == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
+
         if (!_chessTurnManager.IsActorChessPieceOwner(currentlyPlaying, _chessMovementManager.SelectedPiece))
         {
             DisplayNotification($"You can't move this piece.", ConsoleColor.Yellow);
@@ -127,7 +129,12 @@ internal class ChessCommandHandler : CommandHandler
                 if (result)
                 {
                     Program.DisplayGameState();
-                    DisplayNotification($"moved: {StripPrefixFromName(_chessMovementManager.SelectedPiece.Name)}", ConsoleColor.DarkGray);
+
+                    // displaying this notification without this if check doesn't show the check/checkmate info.
+                    if(!(_chessMovementManager.IsKingInCheck(opponentPlayer.Id, _chessBoard)))
+                    {
+                        DisplayNotification($"moved: {StripPrefixFromName(_chessMovementManager.SelectedPiece.Name)}", ConsoleColor.DarkGray);
+                    }
                     _chessMovementManager.HighlightedPositions.Clear();
                     _chessMovementManager.SelectedPiece = null;
                     _chessTurnManager.ChangeTurns();

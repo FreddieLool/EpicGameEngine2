@@ -126,15 +126,13 @@ namespace EpicTileEngine
         /// <param name="message">The message to display.</param>
         public static void DisplayCenteredNotification(string message, ConsoleColor color = ConsoleColor.White)
         {
-            // Split the message into lines - for centering each line
+            // Split the message into lines - for centering each line and color application
             string[] lines = message.Split('\n');
             int consoleWidth = Console.WindowWidth;
             int bottomRow = Console.WindowHeight - lines.Length - 3;
 
             // Clear previous messages
             ClearPreviousCenteredNotification(lines.Length);
-
-            Console.ForegroundColor = color;
 
             // Display each line centered
             for (int i = 0; i < lines.Length; i++)
@@ -143,11 +141,23 @@ namespace EpicTileEngine
                 int messageLength = line.Length;
                 int leftPadding = (consoleWidth - messageLength) / 2;
                 Console.SetCursorPosition(leftPadding, bottomRow + i);
-                Console.WriteLine(line);
+
+                // different color for game over
+                if (line.StartsWith("Game Over"))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(line);
+                }
+                else
+                {
+                    Console.ForegroundColor = color; // input color for other msgs
+                    Console.WriteLine(line);
+                }
             }
 
             Console.ResetColor();
         }
+
 
         // Method to clear the previous centered message
         public static void ClearPreviousCenteredNotification(int numberOfLines)

@@ -35,6 +35,7 @@ public class Program
     static void MainLoop()
     {
         RenderWelcomeMessage();
+        CommandHandler.DisplayNotification("Notifications show here.", ConsoleColor.DarkGray);
         RenderGame();
         DisplayGameState();  // Initial state display
 
@@ -83,17 +84,21 @@ public class Program
     /// </summary>
     public static void DisplayGameState()
     {
-        int stateLine = 2; // Line number for the game state
+        int stateLine = 2;
         Console.SetCursorPosition(0, stateLine);
         Console.Write(new string(' ', Console.WindowWidth));
 
         Actor currentPlayer = _chessTurnManager.GetPlayingActor();
+
+        // workaround for inverting the player after capture (this gets opponent of CURRENT player)
+        Actor _playerThatCaptured = (currentPlayer == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
 
         Console.SetCursorPosition(0, stateLine);
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("State: ");
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine($"{currentPlayer.Name}'s turn");
+
 
         if (_movementManager.LastMoveWasCapture)
         {
@@ -102,19 +107,19 @@ public class Program
 
             // "captures" message parts
             Console.SetCursorPosition(0, stateLine + 1);
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write($"{currentPlayer.Name} captures ");
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.Write($"{_playerThatCaptured.Name} captures ");
 
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(pieceName);
 
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write(" at ");
 
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine(positionNotation);
 
-            CommandHandler.DisplayCenteredNotification($"{currentPlayer.Name} captures {pieceName} at {positionNotation}", ConsoleColor.Red);
+            CommandHandler.DisplayCenteredNotification($"{_playerThatCaptured.Name} captures {pieceName} at {positionNotation}", ConsoleColor.Yellow);
         }
 
         Console.ResetColor();
@@ -246,11 +251,11 @@ public class Program
     {
         int historyStartLine = Console.WindowHeight - commandHistory.Count - 2;
         Console.SetCursorPosition(0, historyStartLine - 1); // label pos
-        Console.WriteLine("History:");
+        ConsoleRGB.WriteLine("History:", ConsoleColor.Gray);
 
         foreach (string cmd in commandHistory)
         {
-            Console.WriteLine(cmd);
+            ConsoleRGB.WriteLine(cmd, ConsoleColor.DarkGray);
         }
     }
 

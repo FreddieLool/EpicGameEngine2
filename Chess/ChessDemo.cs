@@ -151,6 +151,7 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
             case "1":
                 // A well known challenge, where white can checkm8 black in a few moves if played correctly
                 // can't recall its name
+                // this wont work as it assumes a Knight promotion, game promotes to queen only, automatically.
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c5");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "c4");
                 PlacePiece(new ChessPiece(PieceType.Pawn, Color.Black, blackPlayer.Id), "b4");
@@ -273,7 +274,15 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         PlaceSpecificPieces(new[]
         {
         new PiecePlacement(PieceType.Pawn, Color.Black, new Position(0, 1)),
-        new PiecePlacement(PieceType.Pawn, Color.Black, new Position(1, 1)),
+        new PiecePlacement(PieceType.Pawn, Color.Black, new Position(2, 2)),
+        new PiecePlacement(PieceType.Pawn, Color.Black, new Position(4, 3)),
+        new PiecePlacement(PieceType.Pawn, Color.Black, new Position(6, 4)),
+        new PiecePlacement(PieceType.Rook, Color.Black, new Position(1, 0)),
+        new PiecePlacement(PieceType.Rook, Color.Black, new Position(5, 0)),
+        new PiecePlacement(PieceType.Knight, Color.Black, new Position(1, 2)),
+        new PiecePlacement(PieceType.Knight, Color.Black, new Position(6, 2)),
+        new PiecePlacement(PieceType.Bishop, Color.Black, new Position(2, 3)),
+        new PiecePlacement(PieceType.Bishop, Color.Black, new Position(5, 3)),
         new PiecePlacement(PieceType.Queen, Color.Black, new Position(3, 0)),
         new PiecePlacement(PieceType.King, Color.Black, new Position(4, 0))
     }, blackPlayer);
@@ -282,11 +291,20 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
         PlaceSpecificPieces(new[]
         {
         new PiecePlacement(PieceType.Pawn, Color.White, new Position(0, 6)),
-        new PiecePlacement(PieceType.Pawn, Color.White, new Position(1, 6)),
+        new PiecePlacement(PieceType.Pawn, Color.White, new Position(2, 5)),
+        new PiecePlacement(PieceType.Pawn, Color.White, new Position(4, 4)),
+        new PiecePlacement(PieceType.Pawn, Color.White, new Position(6, 3)),
+        new PiecePlacement(PieceType.Rook, Color.White, new Position(1, 7)),
+        new PiecePlacement(PieceType.Rook, Color.White, new Position(5, 7)),
+        new PiecePlacement(PieceType.Knight, Color.White, new Position(1, 5)),
+        new PiecePlacement(PieceType.Knight, Color.White, new Position(6, 5)),
+        new PiecePlacement(PieceType.Bishop, Color.White, new Position(2, 4)),
+        new PiecePlacement(PieceType.Bishop, Color.White, new Position(5, 4)),
         new PiecePlacement(PieceType.Queen, Color.White, new Position(3, 7)),
         new PiecePlacement(PieceType.King, Color.White, new Position(4, 7))
     }, whitePlayer);
     }
+
 
     /// <summary>
     /// Structure to simplify passing piece placement info.

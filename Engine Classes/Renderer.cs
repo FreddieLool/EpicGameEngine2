@@ -17,6 +17,9 @@
         public ConsoleColor Actor1PieceColor { get => actor1PieceColor; set => actor1PieceColor = value; }
         public ConsoleColor Actor2PieceColor { get => actor2PieceColor; set => actor2PieceColor = value; }
 
+        // NEW: 
+        // Juicy & visually appealing colors
+        // Highlights column & row labels for capture-able pieces for easier notation identification
         public void Render(Tilemap tilemap, TileObject? selectedObject = null, bool showValidMovesHighlighted = true)
         {
             int boardWidth = tilemap.Width * 3 + 5;  // Each tile is 3 chars wide + 5 to account for spacing, etc.. (fully centered board)
@@ -40,7 +43,21 @@
             for (int y = 0; y < tilemap.Height; y++)
             {
                 Console.SetCursorPosition(startX - 2, startY + y); // Move cursor left from the start of the row
-                ConsoleRGB.Write(8 - y, ConsoleColor.DarkGray);
+                ConsoleColor rowColor = ConsoleColor.DarkGray;
+
+                // Iterate through highlighted positions to find the capture-able piece
+                foreach (var highlightedPos in highlightedPositions)
+                {
+                    if (tilemap[highlightedPos].Occupant != null)
+                    {
+                        if (highlightedPos.Y == y)
+                        {
+                            rowColor = ConsoleColor.White;
+                            break;
+                        }
+                    }
+                }
+                ConsoleRGB.Write(8 - y, rowColor);
             }
 
             // Render the board
@@ -56,23 +73,22 @@
 
                     // Determine if the current tile has the selected piece
                     bool isSelected = (selectedObject != null && tile.Occupant == selectedObject);
-
-                    // Apply selected color for brackets if selected, else normal background
-                    ConsoleColor bracketColor = isSelected ? selectedColor : ConsoleColor.DarkGray;
-
-
                     if (tile.Occupant != null)
                     {
-                        pieceColor = tile.Occupant.ActorId == 1 ? actor1PieceColor : ConsoleColor.Gray;
+                        // Set piece color: Red for capture (green bg), actor1PieceColor for player 1, Gray for others
+                        pieceColor = (bgColor == ConsoleColor.Green) ? ConsoleColor.Red : (tile.Occupant.ActorId == 1 ? actor1PieceColor : ConsoleColor.Gray);
+
+                        // Set bracket color: White for selected, Red for capture (green bg), DarkGray for others
+                        ConsoleColor bracketColor = isSelected ? ConsoleColor.White : (bgColor == ConsoleColor.Green) ? ConsoleColor.Red : ConsoleColor.DarkGray;
 
                         Console.ForegroundColor = bracketColor;
-                        Console.Write($"[");
-                        Console.BackgroundColor = bgColor;
+                        Console.Write("[");
+                        Console.BackgroundColor = ConsoleColor.Black; // Ensure background is black
                         Console.ForegroundColor = pieceColor;
                         Console.Write($"{tile.Occupant.Symbol}");
-                        Console.BackgroundColor = ConsoleColor.Black;
+                        Console.BackgroundColor = ConsoleColor.Black; // Ensure background remains black
                         Console.ForegroundColor = bracketColor;
-                        Console.Write($"]");
+                        Console.Write("]");
                         Console.ResetColor();
                     }
                     else
@@ -100,12 +116,26 @@
                 }
             }
 
-            // Render the column labels
+            // Render the column labels (with highlighting)
             Console.SetCursorPosition(startX, startY + tilemap.Height);
             for (int x = 0; x < tilemap.Width; x++)
             {
                 if (x > 0) Console.Write(" ");
-                ConsoleRGB.Write(" " + (char)('a' + x), ConsoleColor.DarkGray);  // A to H
+                ConsoleColor columnColor = ConsoleColor.DarkGray;
+
+                // Iterate through highlighted positions to find the capture-able piece
+                foreach (var highlightedPos in highlightedPositions)
+                {
+                    if (tilemap[highlightedPos].Occupant != null)
+                    {
+                        if (highlightedPos.X == x)
+                        {
+                            columnColor = ConsoleColor.White;
+                            break;
+                        }
+                    }
+                }
+                ConsoleRGB.Write(" " + (char)('a' + x), columnColor);
             }
         }
     }

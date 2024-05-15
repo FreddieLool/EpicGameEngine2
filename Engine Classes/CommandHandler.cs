@@ -92,7 +92,31 @@ namespace EpicTileEngine
         public static void DisplayNotification(string errorMessage, ConsoleColor color = ConsoleColor.Red)
         {
             ClearErrorMessage();
-            ConsoleRGB.WriteLine("[!]: " + errorMessage, color);
+
+            string symbol;
+            switch (color)
+            {
+                case ConsoleColor.Red:
+                    symbol = "X";
+                    break;
+                case ConsoleColor.Yellow:
+                    symbol = "!!!";
+                    break;
+                case ConsoleColor.DarkGray:
+                    symbol = "!";
+                    break;
+                case ConsoleColor.Gray:
+                    symbol = "!";
+                    break;
+                default:
+                    symbol = "!";
+                    break;
+            }
+
+            // Write the notification with the appropriate symbol and color
+            ConsoleRGB.Write("[", color);
+            ConsoleRGB.Write($"{symbol}]", color);
+            ConsoleRGB.WriteLine(": " + errorMessage, color);
             Console.ResetColor();
         }
 

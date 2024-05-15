@@ -10,18 +10,18 @@ namespace EpicTileEngine
         /// <summary>
         /// Delegate for validating movement. Returns true if the move is valid.
         /// </summary>
-        public Func<TileObject, Position, Tilemap, bool> ValidateMove { get; set; }
+        public Func<TileObject, Position, Tilemap, bool> ValidateTileObjectMove { get; set; }
 
         /// <summary>
         /// Delegate for handling interactions between two tile objects (e.g., combat).
         /// Returns true if the moving object can move into the tile with another object.
         /// </summary>
-        public Func<TileObject, TileObject, Tilemap, bool> OnInteract { get; set; }
+        public Func<TileObject, TileObject, Tilemap, bool> OnTileObjectInteract { get; set; }
 
         /// <summary>
         /// Action to perform after a move is executed, such as updating game state or triggering events.
         /// </summary>
-        public Action<TileObject, Tile> OnMove { get; set; }
+        public Action<TileObject, Tile> OnTileObjectMove { get; set; }
 
         /// <summary>
         /// Attempts to move a TileObject to a new position within the given Tilemap.
@@ -69,7 +69,7 @@ namespace EpicTileEngine
                 return false;
 
             // Further validate the move using custom logic, if any
-            if (ValidateMove != null && !ValidateMove(mover, targetPosition, board))
+            if (ValidateTileObjectMove != null && !ValidateTileObjectMove(mover, targetPosition, board))
             {
                 Trace.WriteLine("Move failed validation.");
                 return false;
@@ -89,7 +89,7 @@ namespace EpicTileEngine
                 if (targetTile.Occupant != null)
                 {
                     // Handle interaction with an occupant in the target tile
-                    bool interactionResult = OnInteract.Invoke(mover, targetTile.Occupant, board);
+                    bool interactionResult = OnTileObjectInteract.Invoke(mover, targetTile.Occupant, board);
                     if (!interactionResult) return false; // Interaction can block movement
                 }
 
@@ -99,7 +99,7 @@ namespace EpicTileEngine
                 mover.CurrentTile = targetTile;     // Update current tile reference
 
                 // Trigger move event
-                OnMove?.Invoke(mover, targetTile);
+                OnTileObjectMove?.Invoke(mover, targetTile);
             }
 
             return true;

@@ -20,9 +20,9 @@ public class MovementManager : TileActionManager
     public MovementManager(ChessTurnManager chessTurnManager)
     {
         this._chessTurnManager = chessTurnManager;
-        base.ValidateMove = this.ValidateMove;
-        OnInteract = this.HandleInteraction;
-        OnMove = this.AfterMoveActions;
+        base.ValidateTileObjectMove = this.ValidateChessPieceMove;
+        OnTileObjectInteract = this.HandleChessPieceInteraction;
+        OnTileObjectMove = this.AfterMoveActions;
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Validates a move by temporarily performing it and checking for threats.
     /// </summary>
-    private bool ValidateMove(TileObject mover, Position targetPosition, Tilemap board)
+    private bool ValidateChessPieceMove(TileObject mover, Position targetPosition, Tilemap board)
     {
         ChessPiece? piece = mover as ChessPiece;
         if (IsValidMove(targetPosition, piece, board))
@@ -75,7 +75,7 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Handles interactions between pieces, primarily for captures.
     /// </summary>
-    private bool HandleInteraction(TileObject mover, TileObject occupant, Tilemap board)
+    private bool HandleChessPieceInteraction(TileObject mover, TileObject occupant, Tilemap board)
     {
         ChessPiece? chessPiece = mover as ChessPiece; // Cast
         if (occupant is ChessPiece targetPiece)
@@ -191,31 +191,36 @@ public class MovementManager : TileActionManager
     /// </summary>
     public override bool TryMove(TileObject mover, Position targetPosition, Tilemap board)
     {
-        if (!base.ValidateMove(mover, targetPosition, board))
+        // Validate if the move is legal based on the rules of chess
+        if (!base.ValidateTileObjectMove(mover, targetPosition, board))
             return false;
 
+        // Get the target tile and the current tile of the piece
         Tile targetTile = board.GetTile(targetPosition);
         Tile? currentTile = mover.CurrentTile;
 
-        // Handle interaction before performing the move
+        // Handle interaction (e.g., capturing an opponent's piece) before performing the move
         if (targetTile.Occupant != null)
         {
-            if (!OnInteract.Invoke(mover, targetTile.Occupant, board))
+            if (!OnTileObjectInteract.Invoke(mover, targetTile.Occupant, board))
                 return false;
         }
 
+        // Move the piece to the target tile and remove it from the current tile
         targetTile.SetOccupant(mover);
         currentTile?.RemoveOccupant();
 
-        OnMove.Invoke(mover, targetTile);
+        // Invoke the OnMove event to perform any additional actions after the move (promotion!)
+        OnTileObjectMove.Invoke(mover, targetTile);
 
+        // Get the current player and the opponent player
         Actor currentPlayer = _chessTurnManager.GetPlayingActor();
-        Actor opponentPlayer = currentPlayer == _chessTurnManager.whitePlayer ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
+        Actor opponentPlayer = (currentPlayer == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
 
         // Check if the opponent's king is in check after the move
         if (IsKingInCheck(opponentPlayer.Id, board))
         {
-            // Check for checkm8
+            // Check for checkm8 or check
             if (CheckForCheckmate(opponentPlayer.Id, board))
             {
                 CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n {currentPlayer.Name} wins! Congratulations.\n 'restart' to start a new game.");
@@ -249,24 +254,94 @@ public class MovementManager : TileActionManager
     /// </summary>
     public IEnumerable<Position> GetValidMoves(ChessPiece piece, Tilemap board)
     {
-        switch (piece.Type)
+        foreach (var (direction, maxSteps) in piece.MovementCapabilities)
         {
-            case PieceType.Pawn:
-                return GetPawnMoves(piece, board);
-            case PieceType.Rook:
-                return GetRookMoves(piece, board);
-            case PieceType.Knight:
-                return GetKnightMoves(piece, board);
-            case PieceType.Bishop:
-                return GetBishopMoves(piece, board);
-            case PieceType.King:
-                return GetKingMoves(piece, board);
-            case PieceType.Queen:
-                return GetQueenMoves(piece, board);
-            default:
-                return [];
+            for (int step = 1; step <= maxSteps; step++)
+            {
+                Position nextPosition = new Position(piece.CurrentTile.Position.X + direction.X * step, piece.CurrentTile.Position.Y + direction.Y * step);
+
+                if (!board.IsPositionValid(nextPosition))
+                    break;
+
+                // Special check for pawn (captures only diagonally, moves 2 only at beginning)
+                if (piece.Type == PieceType.Pawn)
+                {
+                    // Dynamic for any board size
+                    int startingRowWhite = board.Height - 2;
+                    int startingRowBlack = 1;
+
+                    if (direction.X == 0) // Forward move
+                    {
+                        if (!board.IsTileOccupied(nextPosition))
+                        {
+                            // Allow two steps from starting position
+                            if (step == 2)
+                            {
+                                if ((piece.Color == Color.White && piece.CurrentTile.Position.Y == startingRowWhite) ||
+                                    (piece.Color == Color.Black && piece.CurrentTile.Position.Y == startingRowBlack))
+                                {
+                                    yield return nextPosition;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                yield return nextPosition;
+                            }
+                        }
+                        else
+                        {
+                            break; // Stop if a piece is encountered
+                        }
+                    }
+                    else // Diagonal move for capture
+                    {
+                        if (board.IsTileOccupied(nextPosition) && board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
+                        {
+                            yield return nextPosition; // Capture move
+                        }
+                        break; // Stop if a piece is encountered
+                    }
+                }
+                else
+                {
+                    if (board.IsTileOccupied(nextPosition))
+                    {
+                        if (board.GetTile(nextPosition).Occupant?.ActorId != piece.ActorId)
+                        {
+                            yield return nextPosition; // Capture move
+                        }
+                        break; // Stop if a piece is encountered
+                    }
+                    yield return nextPosition; // Normal move
+                }
+            }
         }
     }
+
+
+    /// <summary>
+    /// Resets the selection and highlights.
+    /// </summary>
+    public void ResetSelectionAndState()
+    {
+        SelectedPiece = null;
+        HighlightedPositions.Clear();
+    }
+
+
+    #region
+    //
+    // Chess Piece valid moves section
+    // 1. Define movement dir
+    // 2. Validate moves (within boundary, not blocked by any pieces)
+    // 3. Gather all valid positions into a list
+    //
+    // not used anymore, movement capabilities are now defined in ChessPiece
+    // to make use of engine base class AddMovementCapability in TileObject
 
     /// <summary>
     /// Gets valid moves for a pawn.
@@ -418,6 +493,7 @@ public class MovementManager : TileActionManager
             // Check positive direction (e.g., right up)
             for (int i = 1; i < Math.Max(board.Width, board.Height); i++)
             {
+                // calculates potential positions by adding a dir vector (positive/negative) to the current pos
                 Position nextPosition = new(currentPosition.X + positive.X * i, currentPosition.Y + positive.Y * i);
                 if (!board.IsPositionValid(nextPosition))
                     break;
@@ -546,12 +622,5 @@ public class MovementManager : TileActionManager
         return validMoves;
     }
 
-    /// <summary>
-    /// Resets the selection and highlights.
-    /// </summary>
-    public void ResetSelectionAndState()
-    {
-        SelectedPiece = null;
-        HighlightedPositions.Clear();
-    }
+    #endregion
 }

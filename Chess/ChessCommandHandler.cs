@@ -71,10 +71,11 @@ internal class ChessCommandHandler : CommandHandler
             _chessMovementManager.HighlightedPositions = _chessMovementManager.GetValidMoves(_chessMovementManager.SelectedPiece, _chessBoard).ToList();
 
             ClearErrorMessage();
+            DisplayNotification($"selected: {StripPrefixFromName(_chessMovementManager.SelectedPiece.Name)}", ConsoleColor.DarkGray);
             return true;
         }
 
-        DisplayNotification("No piece at the specified position.");
+        DisplayNotification("No piece at the specified position.", ConsoleColor.DarkGray);
         return false;
     }
 
@@ -85,9 +86,12 @@ internal class ChessCommandHandler : CommandHandler
     /// <returns>True if the command is executed successfully, otherwise false.</returns>
     private bool HandleDeselectCommand(string[] parts)
     {
-        _chessMovementManager.SelectedPiece = null;
+        if(_chessMovementManager.SelectedPiece != null)
+        {
+            DisplayNotification($"deselected: {StripPrefixFromName(_chessMovementManager.SelectedPiece.Name)}", ConsoleColor.DarkGray);
+            _chessMovementManager.SelectedPiece = null;
+        }
         _chessMovementManager.HighlightedPositions.Clear();
-        DisplayNotification("");
         return true;
     }
 
@@ -100,7 +104,7 @@ internal class ChessCommandHandler : CommandHandler
     {
         if (_chessMovementManager.SelectedPiece == null)
         {
-            DisplayNotification("Usage: select [position], then move [to]", ConsoleColor.DarkYellow);
+            DisplayNotification("Usage: select [position], then move [to]", ConsoleColor.DarkGray);
             return false;
         }
 
@@ -122,19 +126,20 @@ internal class ChessCommandHandler : CommandHandler
                 bool result = _chessMovementManager.TryMove(_chessMovementManager.SelectedPiece, to, _chessBoard);
                 if (result)
                 {
+                    Program.DisplayGameState();
+                    DisplayNotification($"moved: {StripPrefixFromName(_chessMovementManager.SelectedPiece.Name)}", ConsoleColor.DarkGray);
                     _chessMovementManager.HighlightedPositions.Clear();
                     _chessMovementManager.SelectedPiece = null;
                     _chessTurnManager.ChangeTurns();
-                    Program.DisplayGameState();
                 }
                 else
                 {
-                    DisplayNotification("Move failed.", ConsoleColor.DarkYellow);
+                    DisplayNotification("Move failed. Check yo self.", ConsoleColor.Red);
                 }
 
                 return result;
             }
-            DisplayNotification("Selected piece cannot move to the specified position.", ConsoleColor.DarkYellow);
+            DisplayNotification("Selected piece cannot move to the specified position.", ConsoleColor.Red);
             return false;
         }
 
@@ -157,7 +162,7 @@ internal class ChessCommandHandler : CommandHandler
         string formationName = args[1];
         _chessBoard.ResetGame();
         _chessBoard.SetupCustomFormation(formationName);
-
+        DisplayNotification("Setting up formation...", ConsoleColor.Cyan);
         DisplayCenteredNotification($"Formation: {formationName} has been set up.");
         return true;
     }
@@ -175,13 +180,15 @@ internal class ChessCommandHandler : CommandHandler
             "7 Smothered Mate"
         };
 
+        DisplayNotification("Showing available formations...", ConsoleColor.Cyan);
+
         // Clear previous centered notifications
         ClearPreviousCenteredNotification(formations.Count);
 
         // Concatenate formations into a single string with new lines
         string formationList = string.Join("\n", formations);
 
-        DisplayCenteredNotification(formationList, ConsoleColor.Yellow);
+        DisplayCenteredNotification(formationList, ConsoleColor.Cyan);
 
         return true;
     }

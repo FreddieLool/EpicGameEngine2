@@ -82,7 +82,7 @@ public class MovementManager : TileActionManager
         {
             if (targetPiece.ActorId != mover.ActorId)
             {
-                bool isLegal = IsMoveLegal(chessPiece, targetPiece.CurrentTile.Position, board);
+                bool isLegal = ValidateChessPieceMove(chessPiece, targetPiece.CurrentTile.Position, board);
                 Debug.WriteLine(isLegal ? "Interaction legal." : "Interaction results in illegal move.");
                 if (!isLegal)
                 {
@@ -150,7 +150,7 @@ public class MovementManager : TileActionManager
             var validMoves = GetValidMoves(piece, chessBoard);
             foreach (var move in validMoves)
             {
-                if (IsMoveLegal(piece, move, chessBoard))
+                if (ValidateChessPieceMove(piece, move, chessBoard))
                 {
                     return false;  // Found a legal move that avoids check
                 }
@@ -161,29 +161,6 @@ public class MovementManager : TileActionManager
             }
         }
         return isKingInCheck;  // If king is in check and no moves prevent check, it's checkmate
-    }
-
-    /// <summary>
-    /// Checks if a move is legal by temporarily performing it and checking for threats.
-    /// </summary>
-    private bool IsMoveLegal(ChessPiece piece, Position targetPosition, Tilemap board)
-    {
-        Tile? originalTile = piece.CurrentTile;
-        Tile targetTile = board.GetTile(targetPosition);
-        TileObject? originalOccupant = targetTile.Occupant;
-
-        // Perform temporary move
-        targetTile.SetOccupant(piece);
-        originalTile.RemoveOccupant();
-
-        // Check for threats against the mover's king
-        bool isMoveLegal = !IsKingInCheck(piece.ActorId, board);
-
-        // Undo the temporary move
-        originalTile.SetOccupant(piece);
-        targetTile.SetOccupant(originalOccupant);
-
-        return isMoveLegal;
     }
 
     /// <summary>

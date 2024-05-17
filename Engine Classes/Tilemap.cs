@@ -231,62 +231,50 @@ namespace EpicTileEngine
         /// <returns>A collection of tiles in spiral order, starting from the specified position.</returns>
         public IEnumerable<Tile> GetTilesInSpiralOrder(Position startPosition)
         {
-            // Starting pos for the spiral path (center by default)
-            int x = 0, y = 0;
+            // Define the movement dir: right, down, left, up
+            int[] dx = { 1, 0, -1, 0 }; // Change in x direction
+            int[] dy = { 0, 1, 0, -1 }; // Change in y direction
+            int direction = 0; // Start dir: right
+            int segment_length = 1; // Init segment length
+            int steps = 0; // steps taken in the current segment
+            int segment_passed = 0; // No. of segments passed
 
-            // Initial dir (right)
-            int dx = 1, dy = 0;
+            int x = startPosition.X;
+            int y = startPosition.Y;
 
-            // Length of the current straight movement in the spiral (starts 1)
-            int segment_length = 1;
+            // (center of the spiral)
+            yield return tileBoard[x, y];
 
-            // Track segment movements
-            int steps = 0;
-
-            // Tracks completed segments
-            int segment_passed = 0;
-
-            // Loop through all tiles in the board
-            for (int i = 0; i < Width * Height; i++)
+            for (int i = 1; i < Width * Height; i++)
             {
-                // Calculate the actual position on the board based on startPosition and offset (x, y)
-                int actualX = startPosition.X + x;
-                int actualY = startPosition.Y + y;
+                // Move in current dir
+                x += dx[direction];
+                y += dy[direction];
 
-                // Pre-check to ensure position is within board boundaries
-                if (IsPositionValid(actualX, actualY))
+                // valid?
+                if (IsPositionValid(x, y))
                 {
-                    yield return tileBoard[actualX, actualY];
+                    yield return tileBoard[x, y];
                 }
 
-                // Move to the next tile
-                steps++;
+                steps++; // +step count
 
-                // Reached the end of the current segment
+                // If we completed the current seg
                 if (steps == segment_length)
                 {
-                    // Reset steps for the next segment
-                    steps = 0;
-
-                    // Increment segment completed counter
+                    steps = 0; // Reset
+                    direction = (direction + 1) % 4; // Change dir (right -> down -> left -> up)
                     segment_passed++;
 
-                    // Change direction (90 degrees turn)
-                    int temp = dx;
-                    dx = -dy;
-                    dy = temp;
-
-                    // Increase segment length every other segment completion (full rotation)
+                    // Increase seg length after every two segments (a full turn)
                     if (segment_passed % 2 == 0)
                     {
                         segment_length++;
                     }
                 }
-
-                // Update position based on current direction
-                x += dx;
-                y += dy;
             }
         }
+
+
     }
 }

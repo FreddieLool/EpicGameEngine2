@@ -1,4 +1,6 @@
-﻿namespace EpicTileEngine
+﻿using System.Diagnostics;
+
+namespace EpicTileEngine
 {
     public class Renderer : IRenderer
     {
@@ -67,9 +69,10 @@
                 for (int x = 0; x < tilemap.Width; x++)
                 {
                     currentPosition = new Position(x, y);
-                    bgColor = (highlightedPositions.Contains(currentPosition) && showValidMovesHighlighted) ? highlightedColor : backgroundColor;
-
                     var tile = tilemap[currentPosition];
+
+                    bgColor = (highlightedPositions.Contains(currentPosition) && showValidMovesHighlighted) || tile.IsHighlighted ? highlightedColor : backgroundColor;
+
 
                     // Determine if the current tile has the selected piece
                     bool isSelected = (selectedObject != null && tile.Occupant == selectedObject);

@@ -195,10 +195,8 @@ public class Program
         int centerX = _chessBoard.Width / 2;
         int centerY = _chessBoard.Height / 2;
 
-        // Adjust center position for even dimensions
         if (_chessBoard.Width % 2 == 0) centerX -= 1;
         if (_chessBoard.Height % 2 == 0) centerY -= 1;
-
 
         Position centerPosition = new(centerX, centerY);
         ChessPiece spiralPiece = new(PieceType.Rook, Color.White, 1);
@@ -207,15 +205,13 @@ public class Program
 
         RenderGame();
 
-        // Get tiles
         var tilesInSpiral = _chessBoard.GetTilesInSpiralOrder(centerPosition).ToList();
         foreach (var tile in tilesInSpiral)
         {
             Console.WriteLine("Press any key for the next move...");
             Console.ReadKey(true);
 
-            // Highlight
-            tile.IsHighlighted = true;
+            HighlightTile(tile.Position);
             RenderGame();
         }
 

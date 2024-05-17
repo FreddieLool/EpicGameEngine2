@@ -1,0 +1,15 @@
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.AssemblyInfoInputs.cache
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.AssemblyInfo.cs
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.csproj.CoreCompileInputs.cache
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.sourcelink.json
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.dll
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\refint\EpicGameEngine.dll
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.pdb
+C:\Users\Wael\source\repos\EpicGameEngine2\bin\Debug\net6.0\EpicGameEngine.exe
+C:\Users\Wael\source\repos\EpicGameEngine2\bin\Debug\net6.0\EpicGameEngine.deps.json
+C:\Users\Wael\source\repos\EpicGameEngine2\bin\Debug\net6.0\EpicGameEngine.runtimeconfig.json
+C:\Users\Wael\source\repos\EpicGameEngine2\bin\Debug\net6.0\EpicGameEngine.dll
+C:\Users\Wael\source\repos\EpicGameEngine2\bin\Debug\net6.0\EpicGameEngine.pdb
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\EpicGameEngine.genruntimeconfig.cache
+C:\Users\Wael\source\repos\EpicGameEngine2\obj\Debug\net6.0\ref\EpicGameEngine.dll

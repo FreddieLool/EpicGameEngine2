@@ -71,6 +71,51 @@ public class ChessPiece : TileObject
         }
     }
 
+    public void Promote(PieceType newType)
+    {
+        if (Type == PieceType.Pawn)
+        {
+            Type = newType;
+            Symbol = GetSymbolForPiece(newType);
+            MovementCapabilities.Clear();
+            // Add new movement capabilities based on the new type
+            switch (newType)
+            {
+                case PieceType.Queen:
+                    AddMovementCapability(new Position(1, 0), 7);
+                    AddMovementCapability(new Position(-1, 0), 7);
+                    AddMovementCapability(new Position(0, 1), 7);
+                    AddMovementCapability(new Position(0, -1), 7);
+                    AddMovementCapability(new Position(1, 1), 7);
+                    AddMovementCapability(new Position(1, -1), 7);
+                    AddMovementCapability(new Position(-1, 1), 7);
+                    AddMovementCapability(new Position(-1, -1), 7);
+                    break;
+                case PieceType.Rook:
+                    AddMovementCapability(new Position(1, 0), 7);
+                    AddMovementCapability(new Position(-1, 0), 7);
+                    AddMovementCapability(new Position(0, 1), 7);
+                    AddMovementCapability(new Position(0, -1), 7);
+                    break;
+                case PieceType.Bishop:
+                    AddMovementCapability(new Position(1, 1), 7);
+                    AddMovementCapability(new Position(1, -1), 7);
+                    AddMovementCapability(new Position(-1, 1), 7);
+                    AddMovementCapability(new Position(-1, -1), 7);
+                    break;
+                case PieceType.Knight:
+                    AddMovementCapability(new Position(2, 1), 1);
+                    AddMovementCapability(new Position(2, -1), 1);
+                    AddMovementCapability(new Position(-2, 1), 1);
+                    AddMovementCapability(new Position(-2, -1), 1);
+                    AddMovementCapability(new Position(1, 2), 1);
+                    AddMovementCapability(new Position(1, -2), 1);
+                    AddMovementCapability(new Position(-1, 2), 1);
+                    AddMovementCapability(new Position(-1, -2), 1);
+                    break;
+            }
+        }
+    }
 
 
     /// <summary>
@@ -99,17 +144,6 @@ public class ChessPiece : TileObject
         }
     }
 
-    /// <summary>
-    /// Promotes a pawn to a new piece type.
-    /// </summary>
-    /// <param name="newType">The new type to promote the pawn to.</param>
-    public void Promote(PieceType newType)
-    {
-        if (Type == PieceType.Pawn)
-        {
-            Type = newType;
-        }
-    }
 
     /// <summary>
     /// Creates a clone of the chess piece.

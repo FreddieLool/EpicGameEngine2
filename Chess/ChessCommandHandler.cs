@@ -38,6 +38,7 @@ internal class ChessCommandHandler : CommandHandler
         RegisterCommand("show", args => { _chessMovementManager.ShowValidMovementsHighlighted = !_chessMovementManager.ShowValidMovementsHighlighted; return true; }, "show - Toggles showing highlighted valid movements");
         RegisterCommand("start", HandleStartCommand, "start [formationName] - Sets up the board with a specified chess problem formation.");
         RegisterCommand("formations", DisplayFormations, "formations - Displays all chess problem formations.");
+        RegisterCommand("promote", HandlePromotionCommand, "promote [queen|rook|bishop|knight] - Promote a pawn to the specified piece.");
     }
 
     /// <summary>
@@ -154,6 +155,7 @@ internal class ChessCommandHandler : CommandHandler
         return false;
     }
 
+
     /// <summary>
     /// Handles the start command to set up a custom formation.
     /// </summary>
@@ -171,6 +173,40 @@ internal class ChessCommandHandler : CommandHandler
         _chessBoard.SetupCustomFormation(formationName);
         DisplayNotification("Setting up formation...", ConsoleColor.Cyan);
         DisplayCenteredNotification($"Formation: {formationName} has been set up.");
+        return true;
+    }
+
+    private bool HandlePromotionCommand(string[] parts)
+    {
+        if (!MovementManager._awaitingPromotion)
+        {
+            DisplayNotification("No promotion pending.", ConsoleColor.Red);
+            return false;
+        }
+
+        if (parts.Length != 2 || !Enum.TryParse<PieceType>(parts[1], true, out var newType) || newType == PieceType.Pawn || newType == PieceType.King)
+        {
+            DisplayNotification("Invalid promotion. Use: promote [queen|rook|bishop|knight]", ConsoleColor.Red);
+            return false;
+        }
+
+        var piece = _chessMovementManager.LastMovedPiece;
+        if (piece != null && piece.Type == PieceType.Pawn)
+        {
+            piece.Promote(newType);
+            DisplayNotification($"Pawn promoted to {newType}.", ConsoleColor.Green);
+            MovementManager._awaitingPromotion = false;
+
+            // Perform post-promotion checks
+            _chessMovementManager.CheckForEndGameConditions(_chessBoard);
+
+            //_chessTurnManager.ChangeTurns();
+        }
+        else
+        {
+            DisplayNotification("No pawn to promote.", ConsoleColor.Red);
+        }
+
         return true;
     }
 

@@ -54,6 +54,12 @@ namespace EpicTileEngine
             // The first element is the command name, converted to lowercase for case-insensitive matching
             string commandName = parts[0].ToLower();
 
+            if (MovementManager._awaitingPromotion && !input.StartsWith("promote", StringComparison.OrdinalIgnoreCase))
+            {
+                DisplayNotification("Please choose a piece for promotion first. (promote [piece name])", ConsoleColor.Yellow);
+                return false;
+            }
+
             if (commands.ContainsKey(commandName))
             {
                 return commands[commandName](parts);
@@ -98,19 +104,23 @@ namespace EpicTileEngine
             {
                 case ConsoleColor.Red:
                     symbol = "X";
-                    break;
+                break;
+
                 case ConsoleColor.Yellow:
                     symbol = "!!!";
-                    break;
+                break;
+
                 case ConsoleColor.DarkGray:
                     symbol = "!";
-                    break;
+                break;
+
                 case ConsoleColor.Gray:
                     symbol = "!";
-                    break;
+                break;
+
                 default:
                     symbol = "!";
-                    break;
+                break;
             }
 
             // Write the notification with the appropriate symbol and color
@@ -148,15 +158,21 @@ namespace EpicTileEngine
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(line);
                 }
+                else if (line.StartsWith("Promotion time!"))
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine(line);
+                }
                 else
                 {
-                    Console.ForegroundColor = color; // input color for other msgs
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     Console.WriteLine(line);
                 }
             }
 
             Console.ResetColor();
         }
+
 
 
         // Method to clear the previous centered message

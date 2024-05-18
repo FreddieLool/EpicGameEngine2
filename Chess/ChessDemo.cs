@@ -184,7 +184,8 @@ internal class ChessDemo : Tilemap/*, IRenderer*/
                 PlacePiece(new ChessPiece(PieceType.King, Color.Black, blackPlayer.Id), "h8");
                 PlacePiece(new ChessPiece(PieceType.Rook, Color.White, whitePlayer.Id), "g6");
                 PlacePiece(new ChessPiece(PieceType.King, Color.White, whitePlayer.Id), "f7");
-            break;
+                PlacePiece(new ChessPiece(PieceType.Pawn, Color.White, whitePlayer.Id), "a7");
+                break;
 
 
             case "4":

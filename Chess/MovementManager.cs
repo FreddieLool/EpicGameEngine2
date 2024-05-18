@@ -10,12 +10,15 @@ public class MovementManager : TileActionManager
     public bool LastMoveWasCapture = false;
     public bool LastMoveWasCheckmate = false;
     public ChessPiece? LastCapturedPiece = null;
+    public ChessPiece? LastMovedPiece = null;
     public Position LastCapturedPiecePosition;
 
     // Selection info
     public ChessPiece? SelectedPiece;
     public List<Position> HighlightedPositions = [];
     public bool ShowValidMovementsHighlighted = true;
+
+    public static bool _awaitingPromotion = false;
 
     public MovementManager(ChessTurnManager chessTurnManager)
     {
@@ -104,17 +107,17 @@ public class MovementManager : TileActionManager
     /// <summary>
     /// Performs actions after a move, such as checking for pawn promotion.
     /// </summary>
-    private void AfterMoveActions(TileObject piece, Tile newTile)
+    private void AfterMoveActions(TileObject piece, Tile newTile, Tilemap chessBoard)
     {
-        ChessPiece? chessPiece = piece as ChessPiece; // Cast
-        if (chessPiece != null)
+        if (piece is ChessPiece chessPiece && chessPiece.Type == PieceType.Pawn && (newTile.Position.Y == 0 || newTile.Position.Y == 7))
         {
-            // Check for pawn promotion
-            if (chessPiece.Type == PieceType.Pawn && (newTile.Position.Y == 0 || newTile.Position.Y == 7))
-            {
-                chessPiece.Promote(PieceType.Queen);
-                chessPiece.Symbol = 'Q';
-            }
+            LastMovedPiece = chessPiece;
+            Trace.WriteLine("LastMovedPiece: " + chessPiece);
+            _awaitingPromotion = true;
+        }
+        else
+        {
+            CheckForEndGameConditions(chessBoard);
         }
     }
 
@@ -188,25 +191,10 @@ public class MovementManager : TileActionManager
         currentTile?.RemoveOccupant();
 
         // Invoke the OnMove event to perform any additional actions after the move (promotion!)
-        OnTileObjectMove.Invoke(mover, targetTile);
+        OnTileObjectMove.Invoke(mover, targetTile, board);
 
-        // Get the current player and the opponent player
-        Actor currentPlayer = _chessTurnManager.GetPlayingActor();
-        Actor opponentPlayer = (currentPlayer == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
-
-        // Check if the opponent's king is in check after the move
-        if (IsKingInCheck(opponentPlayer.Id, board))
-        {
-            // Check for checkm8 or check
-            if (CheckForCheckmate(opponentPlayer.Id, board))
-            {
-                CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n 'restart' to start a new game.");
-            }
-            else
-            {
-                CommandHandler.DisplayCenteredNotification($"{currentPlayer.Name} checks {opponentPlayer.Name}!");
-            }
-        }
+        // Perform additional actions after move
+        AfterMoveActions(mover, targetTile, board);
 
         return true;
     }
@@ -224,6 +212,32 @@ public class MovementManager : TileActionManager
             }
         }
         throw new InvalidOperationException("King not found on the board, which should never happen.");
+    }
+
+    public void CheckForEndGameConditions(Tilemap chessBoard)
+    {
+        // Get the current player and the opponent player
+        Actor currentPlayer = _chessTurnManager.GetPlayingActor();
+        Actor opponentPlayer = (currentPlayer == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
+
+        // Check if the opponent's king is in check after the move
+        if (IsKingInCheck(opponentPlayer.Id, chessBoard))
+        {
+            // Check for checkmate or check
+            if (CheckForCheckmate(opponentPlayer.Id, chessBoard))
+            {
+                LastMoveWasCheckmate = true;
+                CommandHandler.DisplayCenteredNotification($"Game Over - {currentPlayer.Name} checkmates {opponentPlayer.Name}!\n 'restart' to start a new game.", ConsoleColor.Red);
+            }
+            else
+            {
+                CommandHandler.DisplayCenteredNotification($"{currentPlayer.Name} checks {opponentPlayer.Name}!", ConsoleColor.Yellow);
+            }
+        }
+        else
+        {
+            LastMoveWasCheckmate = false;
+        }
     }
 
     /// <summary>

@@ -21,7 +21,7 @@ namespace EpicTileEngine
         /// <summary>
         /// Action to perform after a move is executed, such as updating game state or triggering events.
         /// </summary>
-        public Action<TileObject, Tile> OnTileObjectMove { get; set; }
+        public Action<TileObject, Tile, Tilemap> OnTileObjectMove { get; set; }
 
         /// <summary>
         /// Attempts to move a TileObject to a new position within the given Tilemap.
@@ -99,7 +99,7 @@ namespace EpicTileEngine
                 mover.CurrentTile = targetTile;     // Update current tile reference
 
                 // Trigger move event
-                OnTileObjectMove?.Invoke(mover, targetTile);
+                OnTileObjectMove?.Invoke(mover, targetTile, board);
             }
 
             return true;

@@ -61,6 +61,22 @@ namespace EpicGameEngine
         }
 
         /// <summary>
+        /// Gets the opponent player of the current player.
+        /// </summary>
+        /// <returns>The opponent player.</returns>
+        public Actor GetOpponentActor()
+        {
+            if (whitePlayer.IsPlaying)
+            {
+                return blackPlayer;
+            }
+            else
+            {
+                return whitePlayer;
+            }
+        }
+
+        /// <summary>
         /// Changes the turn to the next player.
         /// </summary>
         public void ChangeTurns()

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EpicGameEngine")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e028e62e54f51336c969a2e5102db14e03fba3ea")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4e1081e01366ca5afd9b11f69651cb928877dc5")]
 [assembly: System.Reflection.AssemblyProductAttribute("EpicGameEngine")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EpicGameEngine")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

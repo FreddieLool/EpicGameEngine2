@@ -50,11 +50,12 @@ public class Program
             {
                 UpdateCommandHistory(command);
                 RenderGame();
+                DisplayGameState();
             }
 
             if (string.Equals(command, "exit", StringComparison.OrdinalIgnoreCase)) break;
 
-            DisplayGameState(); // refresh every cmd
+            DisplayGameState();
             RenderGame();
             RenderCommandHistoryAtBottom();
         }
@@ -90,14 +91,15 @@ public class Program
 
         Actor currentPlayer = _chessTurnManager.GetPlayingActor();
 
-        // workaround for inverting the player after capture (this gets opponent of CURRENT player)
-        Actor _playerThatCaptured = (currentPlayer == _chessTurnManager.whitePlayer) ? _chessTurnManager.blackPlayer : _chessTurnManager.whitePlayer;
+        // workaround for inverting the player after capture
+        Actor _playerThatCaptured = _chessTurnManager.GetOpponentActor();
 
         Console.SetCursorPosition(0, stateLine);
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.Write("State: ");
+        Console.Write("[-]: State: ");
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine($"{currentPlayer.Name}'s turn");
+        Console.Write($"{currentPlayer.Name}'s");
+        ConsoleRGB.Write(" turn", ConsoleColor.Gray);
 
         if (_movementManager.LastMoveWasCapture)
         {
@@ -119,6 +121,11 @@ public class Program
             Console.WriteLine(positionNotation);
 
             CommandHandler.DisplayCenteredNotification($"{_playerThatCaptured.Name} captures {pieceName} at {positionNotation}", ConsoleColor.Yellow);
+        }
+
+        if (MovementManager._awaitingPromotion)
+        {
+            CommandHandler.DisplayCenteredNotification("Promotion time!\nChoose a piece for promotion: 'promote [queen|rook|bishop|knight]'");
         }
 
         Console.ResetColor();
